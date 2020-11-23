@@ -8,10 +8,9 @@ Created on Thu Nov 19 11:45:12 2020
 
 import subprocess
 import datetime
-from tkinter import *
-from tkinter import filedialog
 from functions import *
-import pandas as pd
+from converter import *
+
 
 
 def create_summary_directory(download_dir):
@@ -21,6 +20,15 @@ def create_summary_directory(download_dir):
     os.mkdir(path)
     download_dir = os.path.isdir(path)  
     print("Summary directory created: " + str(download_dir))  
+    return path
+
+def create_reformatted_directory(download_dir):
+ 
+    file_path = download_dir 
+    path = os.path.join(download_dir, "Reformatted") 
+    os.mkdir(path)
+    download_dir = os.path.isdir(path)  
+    print("Reformatted directory created: " + str(download_dir))  
     return path
 
 
@@ -34,6 +42,8 @@ def step_one():
     WEBSITE_URLS_DF = read_website_df().drop_duplicates( keep='first')
     total_count = len(WEBSITE_URLS_DF)
     website_reading_count = 1
+    
+    
     for website_url in WEBSITE_URLS_DF:
         
         print(str(website_reading_count)+"/"+str(total_count)+" Reading "+ str(website_url) +"...................")  
@@ -61,13 +71,56 @@ def step_one():
     failded_df['Failed_URL'] =  pd.Series(failed_urls)  
     failded_df.to_csv(summary_directory+"/"+"Failed-URL-"+ str(generated_time())+".csv", encoding='utf-8-sig' ,index=False)    
     
-    print("Script Finished..................")
+    print("Downoload Finished..................")
     
+    return download_dir
+
+
+
+def step_two(download_dir,reformat_dir):
     
+  
+    sort_and_reformat_csv(download_dir,reformat_dir)
+    return download_dir
+
 
 
 
 
 if __name__ == '__main__':
     
-    step_one()
+    choice = input("Enter 'DF' to download+filter \nEnter 'D' Just for Downloading\n Enter 'F' for filter already downloaded data")
+    if(choice == "DF"):
+       
+        print("Selected choice: Downlaod+Filer ")
+        download_dir = step_one()
+        print("==============================================\n")
+        print("Moving to Step 2....................")
+        
+        reformat_dir = create_reformatted_directory(download_dir)
+        
+        sort_and_reformat_csv(download_dir,reformat_dir)
+        
+        
+        
+    
+    elif(choice == "D"):
+        
+        print("Choice: Downlaod Data Only")
+        download_dir = step_one()
+   
+    elif(choice == "F"):
+        
+        print("Choice: Filter Already Downloaded Data Only")
+        download_dir = step_one()   
+        
+    else:
+        print("Invalid Secltion choice")
+    
+    
+    
+    
+    
+    
+    
+    

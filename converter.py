@@ -5,13 +5,12 @@ Created on Thu Nov 12 19:09:58 2020
 
 @author: Maaz
 """
-
+import os
+import glob
 import pandas as pd
 import numpy as np
-import pandasql as ps
 from itertools import chain
-import glob
-import os
+
 
 def check_empty(value):
     if(str(value) == "nan"):
@@ -124,7 +123,7 @@ def convert_into_dataframe(v):
 
 
 
-def reformat_csv(website_name,csv_file_name):
+def reformat_csv(website_name,csv_file_name,reformat_dir):
 
     print("Filter begin...")
      
@@ -173,18 +172,27 @@ def reformat_csv(website_name,csv_file_name):
     df22 = df22.drop('Image Src', 1)
     df22.rename(columns={'Image Src 0': 'Image Src'}, inplace=True)
     
-    df22.to_csv(csv_file_name,index=False ,encoding="utf-8-sig")
+    df22.to_csv("reformat_dir"+website_name+"csv" ,index=False ,encoding="utf-8-sig")
     print("Total rows after formatting: " + str(len(df22.index)))
     print("Reformat Finished....................")
 
 
 
 
-for path in glob.glob('dataset/*.csv'): 
+def sort_and_reformat_csv(download_dir,reformat_dir):
   
-    website_name  = os.path.basename(path)[:-4]
-    csv_file_path = path
-    print(website_name + " reformatting")
-    reformat_csv(website_name,csv_file_path)
-    print(website_name + " reformatting finished\n") 
-    
+   files_in_download_dir = glob.glob(download_dir + '/*.csv')
+   
+   print(files_in_download_dir)
+   
+   
+   for path in files_in_download_dir: 
+        try:
+            website_name  = str(os.path.basename(path)[:-4])
+            csv_file_path = path
+            print(website_name + " reformatting")
+            reformat_csv(website_name,csv_file_path,reformat_dir)
+            print(website_name + " reformatting finished\n") 
+            
+        except Exception as e:
+               pass   

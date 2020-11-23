@@ -3,7 +3,7 @@
 """
 Created on Thu Nov 19 12:32:40 2020
 
-@author: Maaz
+@author: Acer
 """
 import os,sys
 from pathlib import Path
@@ -27,15 +27,12 @@ def intro():
  
 
 def ask_file_directory():
-    #root = Tk()
-    #root.withdraw()
-    #root.update()
-    #dataSet_file_directory = filedialog.askopenfilename()
+    root = Tk()
+    root.withdraw()
+    root.update()
+    dataSet_file_directory = filedialog.askopenfilename()
     #dataSet_file_directory = str(os.getcwd()) + "/files/dataset/website_urls.csv"
     #print(dataSet_file_directory)
-    cwd = os.getcwd()
-    dataSet_file_directory = cwd + "/files/website_url3.csv"
-    
     return dataSet_file_directory
 
 
@@ -77,6 +74,7 @@ def generated_time():
 
 
 
+
 def make_new_directory_mac():
     cwd = os.getcwd()
     print(cwd)
@@ -86,6 +84,8 @@ def make_new_directory_mac():
     download_dir = os.path.isdir(path)  
     print("Download directory created: " + str(download_dir))  
     return path
+
+
 
 
 
@@ -115,6 +115,8 @@ def detect_download_dir():
     else:
         print("Operating system not supported..")
         print(platform)
+
+
 
 
   
