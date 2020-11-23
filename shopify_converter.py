@@ -28,7 +28,7 @@ def create_summary_directory(download_dir):
 def step_one():
     
     download_dir =  detect_download_dir()
-    selection_input = input('Enter "s" and press enter to select a URL list from a csv file: ')
+  
     failed_urls = list()
     failded_df = pd.DataFrame(columns = ['Failed_URL'])
     WEBSITE_URLS_DF = read_website_df().drop_duplicates( keep='first')

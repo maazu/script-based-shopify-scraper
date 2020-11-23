@@ -27,12 +27,15 @@ def intro():
  
 
 def ask_file_directory():
-    root = Tk()
-    root.withdraw()
-    root.update()
-    dataSet_file_directory = filedialog.askopenfilename()
+    #root = Tk()
+    #root.withdraw()
+    #root.update()
+    #dataSet_file_directory = filedialog.askopenfilename()
     #dataSet_file_directory = str(os.getcwd()) + "/files/dataset/website_urls.csv"
     #print(dataSet_file_directory)
+    cwd = os.getcwd()
+    dataSet_file_directory = cwd + "/files/website_url3.csv"
+    
     return dataSet_file_directory
 
 
