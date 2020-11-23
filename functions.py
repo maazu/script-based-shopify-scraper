@@ -3,7 +3,7 @@
 """
 Created on Thu Nov 19 12:32:40 2020
 
-@author: Acer
+@author: Maaz
 """
 import os,sys
 from pathlib import Path
@@ -86,22 +86,6 @@ def make_new_directory_mac():
 
 
 
-def make_new_directory_mac():
-    cwd = os.getcwd()
-    print(cwd)
-    file_path = cwd +"/files/scraped-data/"
-    path = os.path.join(file_path, "shopfiy-scraped-data-"+str(generated_time()+"/")) 
-    os.mkdir(path)
-    download_dir = os.path.isdir(path)  
-    print("Download directory created: " + str(download_dir))  
-    return path
-
-
-
-
-
-
-
 def make_new_directory_windows():
     cwd = os.getcwd()
     print(cwd)
@@ -130,99 +114,4 @@ def detect_download_dir():
         print(platform)
 
 
-
-
-
-def get_chrome_driver(download_dir):
-    
-    if platform == "darwin":
-        try:
-          
-            preferences = {"download.default_directory": download_dir ,
-                       "download.prompt_for_download": False}
-            options = webdriver.ChromeOptions()
-            options.add_experimental_option("prefs", preferences)
-            options.add_argument('--ignore-ssl-errors=yes')
-            options.add_argument('--ignore-certificate-errors')
-            # options.add_argument("--user-data-dir='~/Library/Application Support/Google/Chrome'")
-            #options.add_argument('--profile-directory=Default')
-            options.binary_location = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-            chrome_driver_binary = "/usr/local/bin/chromedriver"
-            options.add_extension('1.9.10.26_0.crx')
-            driver = webdriver.Chrome(chrome_driver_binary, options=options)
-            #print(driver.desired_capabilities)
-            return driver
-        
-        except Exception as e:
-            
-            print(e)
-            print("Driver Import Error")
-            raise(e)
-    
-    if platform == "win32":
-        try:
-            
-            preferences = {"download.default_directory": download_dir ,
-                       "download.prompt_for_download": False}
-            options = webdriver.ChromeOptions()
-            #options.add_argument('headless')
-            options.add_experimental_option("prefs", preferences)
-            options.add_argument('--ignore-ssl-errors=yes')
-            options.add_argument('--ignore-certificate-errors')
-            options.add_extension('1.9.10.26_0.crx')
-            driver_path = "chromedriver/windows/chromedriver.exe"
-            driver = webdriver.Chrome(executable_path=driver_path, options=options)
-            #print (driver.desired_capabilities)
-            return driver
-        
-        except Exception as e:
-            
-            print(e)
-            print("Driver Import Error")
-            
-            
-
-
-
   
-
-
-    
-
-
-  
-def check_delay(browser_closing_delay):
-    if(browser_closing_delay == ''):
-        browser_closing_delay = 30
-        return browser_closing_delay
-    else:
-        browser_closing_delay = int(browser_closing_delay)
-        return browser_closing_delay
-
-        
-
-        
-
-
-
-
-
-def make_attempts(website,download_dir,delay_time,limit):
-    
-     attempt = 1  
-     status = rename_downloaded_csv(website,download_dir)       
-     while(status != True):               
-          additional_time = 60
-          delay_time = delay_time + additional_time
-          print("Attempting to download again after increasing time delay.... Attempt Count "+ str(attempt) )
-          extract_using_extension(website,download_dir,delay_time)
-          status = rename_downloaded_csv(website,download_dir)
-          attempt = attempt + 1
-          if(attempt == limit):
-              
-              break
-     print(website + " Product csv file donwonload Status: "+  str(status))
-     
-            
-            
-   
