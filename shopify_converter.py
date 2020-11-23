@@ -22,6 +22,7 @@ def create_summary_directory(download_dir):
     print("Summary directory created: " + str(download_dir))  
     return path
 
+
 def create_reformatted_directory(download_dir):
  
     file_path = download_dir 
@@ -81,6 +82,7 @@ def step_two(download_dir,reformat_dir):
     
   
     sort_and_reformat_csv(download_dir,reformat_dir)
+    print("All files has been reformatted.............")
     return download_dir
 
 
@@ -89,18 +91,23 @@ def step_two(download_dir,reformat_dir):
 
 if __name__ == '__main__':
     
-    choice = input("Enter 'DF' to download+filter \nEnter 'D' Just for Downloading\n Enter 'F' for filter already downloaded data")
+    choice = input("Enter 'DF' to download+filter \nEnter 'D' Just for Downloading\nEnter 'F' for filter already downloaded data\nClick and enter your choice: ==> ")
     if(choice == "DF"):
-       
+        
+        print_elapsed_time()
         print("Selected choice: Downlaod+Filer ")
         download_dir = step_one()
+        print_elapsed_time()
+        
         print("==============================================\n")
         print("Moving to Step 2....................")
         
+        print_elapsed_time()
         reformat_dir = create_reformatted_directory(download_dir)
         
         sort_and_reformat_csv(download_dir,reformat_dir)
-        
+        print_elapsed_time()
+     
         
         
     
@@ -110,17 +117,11 @@ if __name__ == '__main__':
         download_dir = step_one()
    
     elif(choice == "F"):
-        
         print("Choice: Filter Already Downloaded Data Only")
-        download_dir = step_one()   
+        print("Not supported yet.....")
+        print_elapsed_time()
+        #download_dir = step_one()   
         
     else:
         print("Invalid Secltion choice")
-    
-    
-    
-    
-    
-    
-    
     
