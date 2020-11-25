@@ -22,8 +22,8 @@ def generated_time():
 def download_library():
  
    shopify_lib_repo = "wget -O - -q https://raw.githubusercontent.com/kishaningithub/shopify-csv-download/master/install.sh | sudo sh -s -- -b /usr/local/bin"
-  shopify_command_run = subprocess.run(shopify_lib_repo,shell=True)
-  print("The exit code was: %d" % shopify_command_run.returncode)
+   shopify_command_run = subprocess.run(shopify_lib_repo,shell=True)
+   print("The exit code was: %d" % shopify_command_run.returncode)
 
 def read_website_df(csv_file_name):  
    
@@ -137,7 +137,7 @@ def read_df_from_csv(csv_file_name):
         
 def get_unique_products_list(csv_file_name):
    
-    df = read_df_from_csv(csv_file_name)    
+   df = read_df_from_csv(csv_file_name)    
    print("Total rows in csv: " + str(len(df.index)))
    unique_products = df['Handle'].unique()
    return unique_products
