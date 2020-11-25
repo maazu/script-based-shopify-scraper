@@ -13,32 +13,31 @@ import threading
 start_time = time.time()
 lock = threading.Lock()
 
-
-
 def generated_time():
+    
     geneerated_time = time.strftime("%Y-%m-%d-%H-%M-%S")
     return geneerated_time
 
 
-
 def download_library():
-  shopify_lib_repo = "wget -O - -q https://raw.githubusercontent.com/kishaningithub/shopify-csv-download/master/install.sh | sudo sh -s -- -b /usr/local/bin"
+ 
+   shopify_lib_repo = "wget -O - -q https://raw.githubusercontent.com/kishaningithub/shopify-csv-download/master/install.sh | sudo sh -s -- -b /usr/local/bin"
   shopify_command_run = subprocess.run(shopify_lib_repo,shell=True)
   print("The exit code was: %d" % shopify_command_run.returncode)
 
-def read_website_df(csv_file_name):
-    
+def read_website_df(csv_file_name):  
+   
     cwd = os.getcwd()
     file_name = cwd + "/" + str(csv_file_name)
     df = pd.read_csv(str(csv_file_name))
     website_url_df =  df[df.columns[0]].dropna()
     website_Len = len(website_url_df.drop_duplicates())
-    print("Total Url Found in file --->", website_Len )
-    
+    print("Total Url Found in file --->", website_Len )   
     return website_url_df
 
 
 def make_new_directory_mac():
+    
     cwd = os.getcwd()
     print(cwd)
     file_path = cwd 
@@ -60,6 +59,7 @@ def create_summary_directory(download_dir):
 
 
 def check_empty(value):
+    
     if(pd.isnull(value) == True):
         n = ""
         return n
@@ -68,7 +68,8 @@ def check_empty(value):
   
 
 def step_one():
-    threads = []
+   
+    
     csv_file_name = input("\nCheck the uploaded file in the left bar to make sure it's uploaded ......."+
     "\nEnter name of the csv file (please make sure the name must match with the file you uploaded\n\n====>")
     download_dir = make_new_directory_mac()
@@ -78,6 +79,7 @@ def step_one():
     website_reading_count = 1
     failed_urls = list()
     failded_df = pd.DataFrame(columns = ['Failed_URL'])
+    threads = []
     
     for website_url in WEBSITE_URLS_DF:
         
@@ -123,78 +125,60 @@ def step_one():
     print("Downoload Finished..................") 
     return download_dir
 
-def check_empty(value):
-    if(pd.isnull(value)== True):
-        n = ""
-        return n
-    else: 
-        return value
-  
-    
-  
+
+   
 def read_df_from_csv(csv_file_name):
+    
     fields = ['Handle','Title', 'Vendor', 'Type', 'Option1 Name' ,'Option1 Value', 'Variant Price','Image Src']
     df = pd.read_csv(csv_file_name, skipinitialspace=True, usecols=fields, keep_default_na=False, na_values=[''],low_memory=False)
     df.applymap(check_empty)
     return df
 
-
-
-         
+        
 def get_unique_products_list(csv_file_name):
-   df = read_df_from_csv(csv_file_name)    
+   
+    df = read_df_from_csv(csv_file_name)    
    print("Total rows in csv: " + str(len(df.index)))
    unique_products = df['Handle'].unique()
    return unique_products
    
 def get_all_product_images(df):
-    
+   
     product_image_data = {}
     count = 1
     for index, row in df.iterrows():
         product_handle = row['Handle']
         image_Src  = check_empty(str(row['Image Src']))
         
-        if(product_handle in product_image_data):
-           
-            if( image_Src.startswith('https')):
-                
-                product_image_data[product_handle].append(image_Src)
-            
+        if (product_handle in product_image_data): 
+            if ( image_Src.startswith('https')): 
+                product_image_data[product_handle].append(image_Src)  
         else:
             product_image_data[product_handle]= ([image_Src])
-  
     return product_image_data
     
- 
-    
- 
+
 def get_single_product_imgs(product_handle,product_img_dict):
     
      imgs_list =  product_img_dict.get(product_handle)
      if(len(imgs_list) > 0):
-
-         try:
-             imgs_list.remove('') 
+        try:
+            imgs_list.remove('') 
              
-         except Exception as e:
-               pass     
+        except Exception as e:
+            pass     
      imgs_list = set(imgs_list)
      imgs_list = (list(imgs_list))
      return imgs_list
     
-    
-#tiger-of-sweden-jeans-evole-en-bleu-royal-25d
 
-count = 1  
 def filter_data(website_name,csv_file_name):
    
     df = read_df_from_csv(csv_file_name)
     products_imgs_data = get_all_product_images(df)
     product_data = {}
     df_list = list()
-     
-   
+
     for index, row in df.iterrows():
         product_handle = row['Handle']
         title  = check_empty(row['Title'])
@@ -215,11 +199,8 @@ def filter_data(website_name,csv_file_name):
         else:
             imgs = ",".join(product_imgs)
             product_data[product_handle] = [[product_url,product_handle,title,vendor,product_type,option1_name,option1_value,variant_price,imgs]]
-                 
-  
-    #print((product_data["tiger-of-sweden-jeans-evole-en-bleu-royal-25d"]))
-    print("Product images Combined.....")
 
+    print("Product images Combined.....")
     return product_data
 
 
@@ -279,3 +260,7 @@ def main():
   zip_and_download(download_dir,"Full")
   print("Script Finished ..................")
   print("--- Download and Filter Time: {0:.3g} seconds ---".format (time.time() - start_time))
+    
+    
+if __name__ == "__main__":  
+    main()
