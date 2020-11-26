@@ -17,9 +17,7 @@ lock = threading.Lock()
 
 
 
-
 def generated_time():
-    
     geneerated_time = time.strftime("%Y-%m-%d-%H-%M-%S")
     return geneerated_time
 
@@ -39,6 +37,7 @@ def read_website_df():
     df = pd.DataFrame(list(products_count_data.items()),columns = ['website','total products']) 
     df.sort_values(by=['total products'], inplace=True, ascending=True)
     print("Total runnable urls in file --->", len(df) )   
+    df = df['website']
     return df
 
 
@@ -75,7 +74,7 @@ def check_empty(value):
 
 def step_one():
    
-    
+   
     df = read_website_df() 
     download_dir = make_new_directory_mac()
 
@@ -248,7 +247,7 @@ def reformat_csv(website_name,csv_file_name):
 
 
 def zip_and_download(scraped_folder,batch_count):
-  cwd = os.getcwd()
+  cwd = "/content/"
   scraped_folder_name = os.path.basename(scraped_folder)
   download_file_name = cwd + "Batch-"+str(batch_count)+"-"+scraped_folder_name+".zip"
   download_command = "zip -r " + download_file_name + " " + scraped_folder  
