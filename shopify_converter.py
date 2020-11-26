@@ -41,6 +41,14 @@ def read_website_df():
     print("---Sorting Time : {0:.3g} seconds ---".format (time.time() - start_time))
     return df
 
+def read_website_df_single():  
+    csv_file_name = select_csv()
+    df = pd.read_csv(csv_file_name).drop_duplicates(keep='first').reset_index()
+    df = df['website']
+    return df
+
+
+
 
 def make_new_directory_mac():
   
@@ -70,12 +78,15 @@ def check_empty(value):
         return value
   
 
-def step_one():
+def step_one(choice):
    
-   
-    df = read_website_df() 
+    if( choice == "all"):
+    
+      df = read_website_df() 
+    else:
+      df = read_website_df_single()
+    
     download_dir = make_new_directory_mac()
-
     WEBSITE_URLS_DF = df.drop_duplicates( keep='first')
     total_count = len(WEBSITE_URLS_DF)
     website_reading_count = 1
@@ -125,7 +136,7 @@ def step_one():
 
 
     print("Downoload Finished..................") 
-    print("Donwload Directory "+  str(download_dir)) 
+    print("\nDonwload Directory ===>"+  str(download_dir)) 
     return download_dir
 
 
@@ -245,23 +256,41 @@ def reformat_csv(website_name,csv_file_name):
 
 
 
-def zip_and_download(scraped_folder):
+def zip_data(scraped_folder):
     
-  zip_to_download =   scraped_folder+".zip" 
-  download_command = "zip -r " + scraped_folder+".zip " + scraped_folder  
+  zip_to_download =   scraped_folder[:-1] + ".zip" 
+  download_command = "zip -r " +zip_to_download + " " + scraped_folder  
   download_command_run = subprocess.run(download_command,shell=True)
-  print(zip_to_download)
- 
- 
+  if(download_command_run.returncode == 0):
+     print(zip_to_download + " zipped folder sucessfully")
+     return True
+  else:
+    print(zip_to_download + " zipped failure")
+    return False
 
-def main():
+def steps(choice):
+  
   download_library()
- 
-  download_dir = step_one()
+  download_dir = step_one(choice)
   print("---Sort + Download + Filter Time: {0:.3g} seconds ---".format (time.time() - start_time))
- 
+  
+  if(zip_data(download_dir)):
+      download_dir = download_dir[:-1] + ".zip" 
+      print(download_dir + "Preapring download ")
+      files.download(download_dir)
 
   print("Script Finished ..................")  
     
-if __name__ == "__main__":  
-    main()
+
+
+
+
+if __name__ == "__main__": 
+  choice = input("Filter type \nEnter 'a' for  sort+download+reformat \nEnter 'b' for download+reformat only:") 
+  if(choice == 'a'):
+    steps("all")
+  elif(choice == 'b'):
+    steps("b")
+  else:
+    print("invalid choice")
+
