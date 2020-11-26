@@ -286,7 +286,7 @@ def steps(choice):
 
 
 if __name__ == "__main__": 
-  choice = input("Filter type \nEnter 'a' for  sort+download+reformat \nEnter 'b' for download+reformat only:") 
+  choice = input("Filter type \nEnter 'a' for  sort+download+reformat \nEnter 'b' for download+reformat only: \n ====>") 
   if(choice == 'a'):
     steps("all")
   elif(choice == 'b'):
