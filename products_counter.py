@@ -4,8 +4,32 @@ import os
 import urllib
 import json
 from requests.adapters import HTTPAdapter
+import glob
+
+def select_csv():
+     
+     directory  = os.getcwd() + "/"
+     uploaded_csv = glob.glob(directory + "*.csv")
+     if (len(uploaded_csv) > 0):
+       count = 0
+       print("Uploaded files \n")
+       print("index \t\tFound_csv_files\n")
+       for fcsv in uploaded_csv:
+         print(str(count) +"\t\t"+ fcsv)
+         count = count + 1
+       print("\nCheck the uploaded file in the left bar to make sure it's uploaded .......")
+       index_selected = input("\Enter the index of the uploaded file: ==>  ")
+       index_selected = int(index_selected)
+       return uploaded_csv[index_selected]
+
+       
+     else:
+        print("please upload the csv dataset")
+
+
 
 def check_valid_domain(url):
+    
     if (pd.isnull(url) == False):
       try:
           request = requests.get("https://www."+ url)
@@ -24,6 +48,7 @@ def check_valid_domain(url):
 
 
 def get_json_data_frame(web_address,page_number):
+    
     try:
         url = "https://www."+web_address+"/products.json?limit=250&page"+str(page_number)
         with urllib.request.urlopen("https://www."+web_address+"/products.json?limit=250&page="+str(page_number)) as url:
@@ -34,11 +59,9 @@ def get_json_data_frame(web_address,page_number):
       data = 404
       return data
     
-#"website_urls3.csv" 
-
-
-
+    
 def count_products(csv_file_name):
+  
   df = pd.read_csv(csv_file_name).drop_duplicates(keep='first').reset_index()
   products_count = {}
 
@@ -84,11 +107,5 @@ def count_products(csv_file_name):
            break
   return products_count
 
-csv_file_name = input("Enter the uploaded file name ===========>  ")
-csv_file_name = os.getcwd() +"/"+ csv_file_name
-print(csv_file_name)
 
-products_count_data = (count_products(csv_file_name))
-df = pd.DataFrame(list(products_count_data.items()),columns = ['website','total products']) 
-df.sort_values(by=['total products'], inplace=True, ascending=True)
-df.to_csv(csv_file_name,index = False, encoding = "utf-8-sig")
+#df.to_csv(csv_file_name,index = False, encoding = "utf-8-sig")
