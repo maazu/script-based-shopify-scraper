@@ -10,8 +10,13 @@ from google.colab import files
 from multiprocessing import Process
 from itertools import chain
 import threading
+from products_counter import *
+
 start_time = time.time()
 lock = threading.Lock()
+
+
+
 
 def generated_time():
     
@@ -25,15 +30,16 @@ def download_library():
    shopify_command_run = subprocess.run(shopify_lib_repo,shell=True)
    print("The exit code was: %d" % shopify_command_run.returncode)
 
-def read_website_df(csv_file_name):  
+def read_website_df():  
    
-    cwd = os.getcwd()
-    file_name = cwd + "/" + str(csv_file_name)
-    df = pd.read_csv(str(csv_file_name))
-    website_url_df =  df[df.columns[0]].dropna()
-    website_Len = len(website_url_df.drop_duplicates())
-    print("Total Url Found in file --->", website_Len )   
-    return website_url_df
+    
+    csv_file_name = select_csv()
+
+    products_count_data = (count_products(csv_file_name))
+    df = pd.DataFrame(list(products_count_data.items()),columns = ['website','total products']) 
+    df.sort_values(by=['total products'], inplace=True, ascending=True)
+    print("Total runnable urls in file --->", len(df) )   
+    return df
 
 
 def make_new_directory_mac():
@@ -70,11 +76,10 @@ def check_empty(value):
 def step_one():
    
     
-    csv_file_name = input("\nCheck the uploaded file in the left bar to make sure it's uploaded ......."+
-    "\nEnter name of the csv file (please make sure the name must match with the file you uploaded\n\n====>")
+    df = read_website_df() 
     download_dir = make_new_directory_mac()
 
-    WEBSITE_URLS_DF = read_website_df(str(csv_file_name)).drop_duplicates( keep='first')
+    WEBSITE_URLS_DF = df.drop_duplicates( keep='first')
     total_count = len(WEBSITE_URLS_DF)
     website_reading_count = 1
     failed_urls = list()
