@@ -125,6 +125,7 @@ def step_one():
 
 
     print("Downoload Finished..................") 
+    print("Donwload Directory "+  str(download_dir)) 
     return download_dir
 
 
@@ -244,16 +245,14 @@ def reformat_csv(website_name,csv_file_name):
 
 
 
-def zip_and_download(scraped_folder,batch_count):
-  cwd = "/content/"
-  scraped_folder_name = os.path.basename(scraped_folder)
-  download_file_name = cwd + "Batch-"+str(batch_count)+"-"+scraped_folder_name+".zip"
-  download_command = "zip -r " + download_file_name + " " + scraped_folder  
+def zip_and_download(scraped_folder):
+    
+  zip_to_download =   scraped_folder+".zip" 
+  download_command = "zip -r " + scraped_folder+".zip " + scraped_folder  
   download_command_run = subprocess.run(download_command,shell=True)
-  #download_command_run.stdout.decode('utf-8')
-  from google.colab import files
-  files.download(download_file_name)
-
+  print(zip_to_download)
+ 
+ 
 
 def main():
   download_library()
@@ -261,8 +260,7 @@ def main():
   download_dir = step_one()
   print("---Sort + Download + Filter Time: {0:.3g} seconds ---".format (time.time() - start_time))
  
-  from google.colab import files
-  files.download(download_dir)
+
   print("Script Finished ..................")  
     
 if __name__ == "__main__":  
