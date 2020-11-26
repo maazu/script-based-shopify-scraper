@@ -273,13 +273,17 @@ def steps(choice):
   download_library()
   download_dir = step_one(choice)
   print("---Sort + Download + Filter Time: {0:.3g} seconds ---".format (time.time() - start_time))
+  print("Script Finished ..................")  
   
   if(zip_data(download_dir)):
+    try:
       download_dir = download_dir[:-1] + ".zip" 
       print(download_dir + "Preapring download ")
       files.download(download_dir)
+    except Exception as e:
+      print(e)
 
-  print("Script Finished ..................")  
+  
     
 
 
