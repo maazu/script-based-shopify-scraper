@@ -6,23 +6,30 @@ import json
 from requests.adapters import HTTPAdapter
 import glob
 
-def select_csv():
-     
-     directory  = os.getcwd() + "/"
-     uploaded_csv = glob.glob(directory + "*.csv")
-     if (len(uploaded_csv) > 0):
-       count = 0
-       print("Uploaded files \n")
-       print("index \t\tFound_csv_files\n")
-       for fcsv in uploaded_csv:
-         print(str(count) +"\t\t"+ fcsv)
-         count = count + 1
-       print("\nCheck the uploaded file in the left bar to make sure it's uploaded .......")
-       index_selected = input("\Enter the index of the uploaded file: ==>  ")
-       index_selected = int(index_selected)
-       return uploaded_csv[index_selected]
+def generated_time():
+    geneerated_time = time.strftime("%Y-%m-%d-%H-%M-%S")
+    return geneerated_time
 
-       
+
+def select_csv():
+     confirm_dataset = input("Enter 'y' to confirm dataset upload: ")
+     if (confirm_dataset == "y"):
+        try:
+          directory  = os.getcwd() + "/"
+          uploaded_csv = glob.glob(directory + "*.csv")
+          if (len(uploaded_csv) > 0):
+            count = 0
+            print("Uploaded files \n")
+            print("index \t\tFound_csv_files\n")
+            for fcsv in uploaded_csv:
+              print(str(count) +"\t\t"+ fcsv)
+              count = count + 1
+            print("\nCheck the uploaded file in the left bar to make sure it's uploaded .......")
+            index_selected = input("\Enter the index of the uploaded file: ==>  ")
+            index_selected = int(index_selected)
+            return uploaded_csv[index_selected]
+        except Exception as e:
+          print(e)
      else:
         print("please upload the csv dataset")
 
@@ -64,7 +71,8 @@ def count_products(csv_file_name):
   
   df = pd.read_csv(csv_file_name).drop_duplicates(keep='first').reset_index()
   products_count = {}
-
+  failed_urls = list()
+  failded_df = pd.DataFrame(columns = ['Failed_URL'])
   
   for index, row in df.iterrows():
     web_address = str(row['website'])
@@ -105,6 +113,9 @@ def count_products(csv_file_name):
            print("Total Products "+ str(web_address) +"...." + str(product_count))
            next_page = False
            break
+
+  failded_df['Failed_URL'] =  pd.Series(failed_urls)  
+  failded_df.to_csv("Failed-URL-"+ str(generated_time())+".csv", encoding='utf-8-sig' ,index=False)    
   return products_count
 
 
