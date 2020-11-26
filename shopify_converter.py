@@ -38,15 +38,13 @@ def read_website_df():
     df.sort_values(by=['total products'], inplace=True, ascending=True)
     print("Total runnable urls in file --->", len(df) )   
     df = df['website']
+    print("---Sorting Time : {0:.3g} seconds ---".format (time.time() - start_time))
     return df
 
 
 def make_new_directory_mac():
-    
-    cwd = os.getcwd()
-    print(cwd)
-    file_path = cwd 
-    path = os.path.join(file_path, "shopfiy-scraped-data-"+ str(generated_time()+"/")) 
+  
+    path = os.path.join("/content/", "shopfiy-scraped-data-"+ str(generated_time()+"/")) 
     os.mkdir(path)
     download_dir = os.path.isdir(path)  
     print("Download directory created: " + str(download_dir))  
@@ -224,7 +222,7 @@ def convert_into_dataframe(v):
 def reformat_csv(website_name,csv_file_name):
    
     lock.acquire()
-    print(website_name + " Filter begin...")
+    print(website_name + " Filter begin...\n")
      
     product_data = filter_data(website_name,csv_file_name)
     unique_products = get_unique_products_list(csv_file_name)
@@ -241,7 +239,7 @@ def reformat_csv(website_name,csv_file_name):
     df.to_csv(csv_file_name ,index=False ,encoding="utf-8-sig")
     #df.to_json(csv_file_name[:-4]+".json", orient = 'split', compression = 'infer') 
     print(website_name+ " Total rows after formatting: " + str(len(df.index)))
-    print(website_name +" Reformat Finished....................")
+    print(website_name +" Reformat Finished....................\n")
     lock.release()
 
 
@@ -261,10 +259,11 @@ def main():
   download_library()
  
   download_dir = step_one()
-  zip_and_download(download_dir,"Full")
-  print("Script Finished ..................")
-  print("--- Download and Filter Time: {0:.3g} seconds ---".format (time.time() - start_time))
-    
+  print("---Sort + Download + Filter Time: {0:.3g} seconds ---".format (time.time() - start_time))
+ 
+  from google.colab import files
+  files.download(download_dir)
+  print("Script Finished ..................")  
     
 if __name__ == "__main__":  
     main()
