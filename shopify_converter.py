@@ -17,10 +17,6 @@ lock = threading.Lock()
 
 
 
-def generated_time():
-    geneerated_time = time.strftime("%Y-%m-%d-%H-%M-%S")
-    return geneerated_time
-
 
 def download_library():
  
@@ -73,7 +69,7 @@ def check_empty(value):
     
     if(pd.isnull(value) == True):
         n = ""
-        return n
+        return True
     else: 
         return value
   
@@ -195,17 +191,17 @@ def filter_data(website_name,csv_file_name):
 
     for index, row in df.iterrows():
         product_handle = row['Handle']
-        title  = check_empty(row['Title'])
-        vendor = check_empty(row['Vendor'])
-        product_type   = check_empty(row['Type'])
-        option1_name = check_empty(row['Option1 Name'])
-        option1_value = check_empty(row['Option1 Value'])
+        title  = row['Title']
+        vendor = row['Vendor']
+        product_type   = row['Type']
+        option1_name = row['Option1 Name']
+        option1_value = row['Option1 Value']
         variant_price  = check_empty(row['Variant Price'])
         product_imgs  = get_single_product_imgs(product_handle,products_imgs_data)
         product_url = "https://www." + str(website_name) + "/products/" + str(product_handle)
         if(product_handle in product_data):
           
-           if((title) =="" and vendor =="" and  product_type == "" and option1_name == "" and option1_value == "" and variant_price == ""):
+           if( (check_empty(title) == True) and (check_empty(vendor) == True) and  (check_empty(product_type) == True) and (check_empty(option1_name) == True) and (check_empty(option1_value) == True) and (check_empty(variant_price) == True):
                pass
            else:
                 imgs = ",".join(product_imgs)
@@ -284,11 +280,7 @@ def steps(choice):
       print(e)
 
   
-    
-
-
-
-
+  
 if __name__ == "__main__": 
   choice = input("Filter type \nEnter 'a' for  sort+download+reformat \nEnter 'b' for download+reformat only: \n ====>") 
   if(choice == 'a'):
