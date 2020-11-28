@@ -91,10 +91,11 @@ def finish__reformat_threads():
         thread.join()
         
 def close_thread(index):
-    
-    reformat_thread[index].join()
-    finished_thread.append(index)  
-   
+    if(index >= 0):
+      reformat_thread[index].join()
+      finished_thread.append(index)  
+    else:
+      pass
     
 def trigger_download(download_dir):
     try:
@@ -110,14 +111,14 @@ def trigger_download(download_dir):
       
         
       
-def zip_data(scraped_folder):
+def zip_data(scraped_folder,batch_size):
    
-  zip_to_download =   scraped_folder[:-1] + ".zip" 
+  zip_to_download =  scraped_folder[:-1] + ".zip" 
   download_command = "zip -r " +zip_to_download + " " + scraped_folder  
   download_command_run = subprocess.run(download_command,shell=True)
- 
+  
   if (download_command_run.returncode == 0):
-     
+      os.rename(zip_to_download, "Batch-"+str(batch_size)+zip_to_download)
       print(zip_to_download + " zipped folder sucessfully")
       print("Batch compelete -- batch zipped ready for download")
       trigger_download(zip_to_download)
@@ -165,7 +166,7 @@ def step_one(choice,batch_size):
             reformatting_thread = threading.Thread(target= reformat_csv, args=(website_csv_name,downloaded_csv_path,thread_count,batch_size,processed_dir))
             reformat_thread.append(reformatting_thread)
             reformatting_thread.start() 
-
+            
         else:
             failed_urls.append(website_url)
             subprocess.call("rm %s" % (website_csv_name), shell=True)
@@ -181,7 +182,7 @@ def step_one(choice,batch_size):
     finish__reformat_threads()
     print("\n\nDownoload Finished==============================================\n")
     print("\n\nDonwload Directory ===>"+  str(download_dir)) 
-    zip_data()
+    
     return download_dir
 
 
@@ -286,8 +287,8 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
     lock.acquire()
     if (int(len(finished_thread))  % int(batch_size) == 0):
         print("Batch compelete -- zipping batch for download")
-        zip_data(processed_dir)
-       
+        zip_data(processed_dir,finished_thread)
+        print("\nMoving to next batch")
         
         
         
@@ -308,11 +309,11 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
     print("\n\n"+website_name + " dataframe combined.......\nImage reformatted")
     print("\n\n" + website_name + " Total rows after formatting: " + str(len(df.index)))
    
-    df.to_csv(processed_dir+website_name+".csv" ,index=False ,encoding="utf-8-sig")
+    df.to_csv(processed_dir+website_name ,index=False ,encoding="utf-8-sig")
     print("\n\n" + website_name +" Reformat Finished....................\n")
     lock.release()
-    close_thread(thread_count)
-    
+
+    close_thread(thread_count-1)
     
     
     
@@ -322,7 +323,7 @@ def steps(choice,batch_size):
   download_dir = step_one(choice,batch_size)
   print("---Sort + Download + Filter Time: {0:.3g} seconds ---".format (time.time() - start_time))
   print("-----------------------Script Finished ------------------------")  
-  
+  zip_data(processed_dir,"FULL")
   
 
   
