@@ -156,7 +156,7 @@ def step_one(choice,batch_size):
             subprocess.call("mv %s %s" % (website_csv_name, download_dir), shell=True)
             print("Download Succesful.................")
             
-            downloaded_csv_path= download_dir + website_csv_file_name
+            downloaded_csv_path = download_dir + website_csv_name
            
             while(os.path.exists(downloaded_csv_file) == True):
               print("waiting for to be moved....")
