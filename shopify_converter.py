@@ -294,7 +294,7 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
    
     lock.acquire()
 
-    if (int(len(thread_count))  % int(batch_size) == 0):
+    if (int((thread_count))  % int(batch_size) == 0):
         print("Batch compelete -- zipping batch for download")
         zip_data(processed_dir,thread_count)
         print("\nMoving to next batch")
