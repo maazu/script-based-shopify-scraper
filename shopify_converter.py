@@ -137,8 +137,8 @@ def step_one(choice,batch_size):
     else:
       df = read_website_df_single()
     
-    download_dir = create_new_directory("content/","unprocessed")
-    processed_dir = create_new_directory("content/","processed")
+    download_dir = create_new_directory("/content/","unprocessed")
+    processed_dir = create_new_directory("/content/","processed")
     WEBSITE_URLS_DF = df.drop_duplicates( keep='first')
     total_count = len(WEBSITE_URLS_DF)
     website_reading_count = 0
