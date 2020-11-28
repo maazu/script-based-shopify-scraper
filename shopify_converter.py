@@ -123,7 +123,7 @@ def zip_data(scraped_folder,batch_size):
       zip_to_download = os.rename(zip_to_download, renamed)
       print(str(renamed) + " zipped folder sucessfully")
       print("Batch compelete -- batch zipped ready for download")
-      trigger_download(zip_to_download)
+      trigger_download(str(renamed))
       return True
  
   else:
