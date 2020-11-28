@@ -111,15 +111,19 @@ def trigger_download(download_dir):
         
       
 def zip_data(scraped_folder,batch_size):
-   
+ 
   zip_to_download =  scraped_folder[:-1] + ".zip" 
   download_command = "zip -r " +zip_to_download + " " + scraped_folder  
   download_command_run = subprocess.run(download_command,shell=True)
-  
+  try:
+    batch_size ="{:02d}".format(batch_size)
+  except: 
+    batch_size ="Full"
+    
   if (download_command_run.returncode == 0):
       base_name = os.path.basename(zip_to_download )
       dir_name  = os.path.dirname(scraped_folder)
-      batch_size ="{:02d}".format(batch_size)
+      
       renamed = "batch-"+ str(batch_size)+"-" + base_name 
       zip_to_download = os.rename(zip_to_download, renamed)
       print(str(renamed) + " zipped folder sucessfully")
@@ -214,9 +218,6 @@ def check_empty2(value):
     else: 
         return value
   
-
-
-
 
 
 def get_all_product_images(df):
@@ -314,10 +315,7 @@ def convert_into_dataframe(v):
 
 def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, processed_dir):
    
-    lock.acquire()
-
-        
-        
+    lock.acquire()    
     print("\n\n" + website_name + " Filter begin...\n")
      
     product_data = filter_data(website_name,downloaded_csv_path)
@@ -347,11 +345,6 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
       pass
     lock.release()
 
-
-
-   
-    
-    
     
 def steps(choice,batch_size):
   
