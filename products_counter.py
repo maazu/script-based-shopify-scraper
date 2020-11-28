@@ -6,6 +6,9 @@ import json
 from requests.adapters import HTTPAdapter
 import glob
 import time
+
+
+
 def generated_time():
     geneerated_time = time.strftime("%Y-%m-%d-%H-%M-%S")
     return geneerated_time
@@ -118,9 +121,15 @@ def count_products(csv_file_name):
   failded_df.to_csv("Failed-URL-"+ str(generated_time())+".csv", encoding='utf-8-sig' ,index=False)    
   return products_count
 
+
+
+
+
+
 if __name__ == "__main__":  
+
     csv_file_name = select_csv()
     total_product_dict = count_products(csv_file_name)
-    df = pd.DataFrame(list(products_count_data.items()),columns = ['website','total products']) 
+    df = pd.DataFrame(list(total_product_dict.items()),columns = ['website','total products']) 
     df.sort_values(by=['total products'], inplace=True, ascending=True)
     df.to_csv("/content/sorted_dataset"+generated_time()+".csv",index = False, encoding = "utf-8-sig")
