@@ -266,8 +266,12 @@ def filter_data(website_name,csv_file_name):
                 imgs = ",".join(product_imgs)
                 product_data[product_handle].append([product_url,product_handle,title,vendor,product_type,option1_name,option1_value,variant_price,imgs]) 
         else:
+          if( (check_empty(title) == True) and (check_empty(vendor) == True) and  (check_empty(product_type) == True) and (check_empty(option1_name) == True) and (check_empty(option1_value) == True) and (check_empty(variant_price) == True)):
+               pass
+          else:
             imgs = ",".join(product_imgs)
             product_data[product_handle] = [[product_url,product_handle,title,vendor,product_type,option1_name,option1_value,variant_price,imgs]]
+           
 
     print("Product images Combined.....")
     return product_data
