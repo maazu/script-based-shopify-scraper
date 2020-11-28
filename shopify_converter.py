@@ -118,7 +118,10 @@ def zip_data(scraped_folder,batch_size):
   download_command_run = subprocess.run(download_command,shell=True)
   
   if (download_command_run.returncode == 0):
-      os.rename(zip_to_download, "Batch-"+str(batch_size)+zip_to_download)
+      base_name = os.path.basename(zip_to_download, scraped_folder )
+      dir_name  = path.dirname(scraped_folder)
+      renamed = dir_name+"batch-"+ str(batch_size) + base_name 
+      zip_to_download = os.rename(zip_to_download, renamed)
       print(zip_to_download + " zipped folder sucessfully")
       print("Batch compelete -- batch zipped ready for download")
       trigger_download(zip_to_download)
@@ -153,6 +156,7 @@ def step_one(choice,batch_size):
         website_csv_name = str(website_url +".csv")
         
         if(shopify_download_command(website_url) == 0):
+            
             subprocess.call("mv %s %s" % (website_csv_name, download_dir), shell=True)
             print("Download Succesful.................")
             
@@ -190,7 +194,7 @@ def step_one(choice,batch_size):
 def read_df_from_csv(csv_file_name):
     
     fields = ['Handle','Title', 'Vendor', 'Type', 'Option1 Name' ,'Option1 Value', 'Variant Price','Image Src']
-    df = pd.read_csv(csv_file_name, skipinitialspace=True, usecols=fields, keep_default_na=False, na_values=[''],low_memory=False)
+    df = pd.read_csv(csv_file_name,low_memory=False)
     return df
 
         
@@ -251,7 +255,7 @@ def filter_data(website_name,csv_file_name):
         product_type   = row['Type']
         option1_name = row['Option1 Name']
         option1_value = row['Option1 Value']
-        variant_price  = check_empty(row['Variant Price'])
+        variant_price  =  row['Variant Price']
         product_imgs  = get_single_product_imgs(product_handle,products_imgs_data)
         product_url = "https://www." + str(website_name) + "/products/" + str(product_handle)
         if(product_handle in product_data):
@@ -285,6 +289,7 @@ def convert_into_dataframe(v):
 def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, processed_dir):
    
     lock.acquire()
+    close_thread(thread_count-1)
     if (int(len(finished_thread))  % int(batch_size) == 0):
         print("Batch compelete -- zipping batch for download")
         zip_data(processed_dir,finished_thread)
@@ -313,7 +318,7 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
     print("\n\n" + website_name +" Reformat Finished....................\n")
     lock.release()
 
-    close_thread(thread_count-1)
+   
     
     
     
