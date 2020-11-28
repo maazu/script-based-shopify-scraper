@@ -118,7 +118,7 @@ def zip_data(scraped_folder,batch_size):
   download_command_run = subprocess.run(download_command,shell=True)
   
   if (download_command_run.returncode == 0):
-      base_name = os.path.basename(zip_to_download, scraped_folder )
+      base_name = os.path.basename(zip_to_download )
       dir_name  = path.dirname(scraped_folder)
       renamed = dir_name+"batch-"+ str(batch_size) + base_name 
       zip_to_download = os.rename(zip_to_download, renamed)
@@ -289,10 +289,10 @@ def convert_into_dataframe(v):
 def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, processed_dir):
    
     lock.acquire()
-    close_thread(thread_count-1)
-    if (int(len(finished_thread))  % int(batch_size) == 0):
+
+    if (int(len(thread_count))  % int(batch_size) == 0):
         print("Batch compelete -- zipping batch for download")
-        zip_data(processed_dir,finished_thread)
+        zip_data(processed_dir,thread_count)
         print("\nMoving to next batch")
         
         
