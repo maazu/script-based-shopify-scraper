@@ -212,15 +212,17 @@ def get_all_product_images(df):
     for index, row in df.iterrows():
         product_handle = row['Handle']
         image_Src  = check_empty(str(row['Image Src']))
-       
-        if (product_handle in product_image_data): 
-            if(image_Src != True):
-              if ( image_Src.startswith('https')): 
-                      product_image_data[product_handle].append(image_Src)  
-              else:
-                  product_image_data[product_handle]= ([image_Src])
-            
+        if(image_Src == True):
+              pass 
+        else:
+          if (product_handle in product_image_data): 
+            if ( image_Src.startswith('https')): 
+              product_image_data[product_handle].append(image_Src)  
+            else:
+              product_image_data[product_handle]= ([image_Src])
+                
     return product_image_data
+    
     
 
 def get_single_product_imgs(product_handle,product_img_dict):
