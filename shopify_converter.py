@@ -317,10 +317,10 @@ def reformat_csv(website_name, csv_file_path, thread_count, batch_size, processe
     
     
     
-def steps(choice):
+def steps(choice,batch_size):
   
   download_library()
-  download_dir = step_one(choice)
+  download_dir = step_one(choice,batch_size)
   print("---Sort + Download + Filter Time: {0:.3g} seconds ---".format (time.time() - start_time))
   print("-----------------------Script Finished ------------------------")  
   
