@@ -178,14 +178,14 @@ def step_one(choice,batch_size):
        
         website_reading_count = website_reading_count + 1
         
-        print("======================================\n")
+        print("\nIteration ended======================================\n")
     
    
     save_failed_csv(processed_dir, failed_urls)
     finish__reformat_threads()
     print("\n\nDownoload Finished==============================================\n")
-    print("\n\nDonwload Directory ===>"+  str(download_dir)) 
-    
+    print("\n\Reformatted Directory ===>"+  str(processed_dir)) 
+    os.remove(download_dir)
     return processed_dir
 
 
