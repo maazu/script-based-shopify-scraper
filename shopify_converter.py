@@ -213,7 +213,7 @@ def get_all_product_images(df):
         product_handle = row['Handle']
         image_Src  = str(row['Image Src'])
         if (product_handle in product_image_data): 
-                if ( image_Src.startswith('https')): 
+            if ( image_Src.startswith('https')): 
                     product_image_data[product_handle].append(image_Src)  
             else:
                 product_image_data[product_handle]= ([image_Src])
