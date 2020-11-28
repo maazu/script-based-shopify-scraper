@@ -124,8 +124,8 @@ def zip_data(scraped_folder,batch_size):
   zip_to_download =  scraped_folder[:-1] + ".zip" 
   download_command = "zip -r " +zip_to_download + " " + scraped_folder  
   download_command_run = subprocess.run(download_command,shell=True)
-
-  batch_size ="{:02d}".format(batch_size)
+  if(isnumeric(int(batch_size)) == True ):
+    batch_size ="{:02d}".format(batch_size)
 
   if (download_command_run.returncode == 0):
       base_name = os.path.basename(zip_to_download )
