@@ -122,7 +122,7 @@ def zip_data(scraped_folder,batch_size):
       dir_name  = os.path.dirname(scraped_folder)
       renamed = "batch-"+ str(batch_size)+"-" + base_name 
       zip_to_download = os.rename(zip_to_download, renamed)
-      print(zip_to_download + " zipped folder sucessfully")
+      print(str(renamed) + " zipped folder sucessfully")
       print("Batch compelete -- batch zipped ready for download")
       trigger_download(zip_to_download)
       return True
@@ -141,7 +141,7 @@ def step_one(choice,batch_size):
       df = read_website_df_single()
     
     download_dir = create_new_directory("/content/","unprocessed")
-    processed_dir = create_new_directory("/content/","processed")
+    processed_dir = create_new_directory("/content/","reformatted")
     WEBSITE_URLS_DF = df.drop_duplicates( keep='first')
     total_count = len(WEBSITE_URLS_DF)
     website_reading_count = 0
