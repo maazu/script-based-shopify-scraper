@@ -99,7 +99,6 @@ def close_thread(reformat_thread):
 def trigger_download(download_dir):
     try:
       
-        download_dir = download_dir[:-1] + ".zip" 
         print("\n" +  download_dir + "Attempting to trigger download automaticllay ")
         files.download(download_dir)
         print("\n" + download_dir + "Trigger sucessfull....... ")
@@ -164,7 +163,7 @@ def step_one(choice,batch_size):
           
             thread_count  = website_reading_count
             reformatting_thread = threading.Thread(target= reformat_csv, args=(website_csv_name,downloaded_csv_path,thread_count,batch_size,processed_dir))
-            reformat_thread.append(thread)
+            reformat_thread.append(reformatting_thread)
             reformatting_thread.start() 
 
         else:
@@ -285,7 +284,7 @@ def convert_into_dataframe(v):
 def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, processed_dir):
    
     lock.acquire()
-    if (len(finished_thread)  % batch_size == 0):
+    if (int(len(finished_thread))  % int(batch_size) == 0):
         print("Batch compelete -- zipping batch for download")
         zip_data(processed_dir)
        
