@@ -316,6 +316,7 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
    
     df.to_csv(processed_dir+website_name ,index=False ,encoding="utf-8-sig")
     print("\n\n" + website_name +" Reformat Finished....................\n")
+    os.remove(downloaded_csv_path)
     lock.release()
 
    
