@@ -206,10 +206,11 @@ def get_unique_products_list(csv_file_name):
    return unique_products
 
 
-def check_empty(value):
+def check_empty2(value):
     
-    if(pd.isnull(value) == True):
-        return True
+    if((value) == ""):
+        n= ""
+        return n 
     else: 
         return value
   
@@ -218,23 +219,23 @@ def check_empty(value):
 
 
 def get_all_product_images(df):
-   
+    
+
     product_image_data = {}
     count = 1
     for index, row in df.iterrows():
         product_handle = row['Handle']
-        image_Src  = check_empty(str(row['Image Src']))
-        if(image_Src == True):
-              print("yes")
-              pass 
+        image_Src  = check_empty2(str(row['Image Src']))
+
+        if(product_handle in product_image_data):
+
+            if( image_Src.startswith('https')):
+
+                product_image_data[product_handle].append(image_Src)
         else:
-          if(product_handle in product_image_data):
-            if (image_Src.startswith('https')): 
-              product_image_data[product_handle].append(image_Src)  
-          else:
             product_image_data[product_handle]= ([image_Src])
-                
-    return product_image_data
+
+    return product_image_dataa
     
     
 
@@ -270,9 +271,13 @@ def filter_data(website_name,csv_file_name):
         product_imgs  = get_single_product_imgs(product_handle,products_imgs_data)
         product_url = "https://www." + str(website_name) + "/products/" + str(product_handle)
         if(product_handle in product_data):
-            
-            imgs = ",".join(product_imgs)
-            product_data[product_handle].append([product_url,product_handle,title,vendor,product_type,option1_name,option1_value,variant_price,imgs]) 
+           
+            if( (check_empty(title) == True) and (check_empty(vendor) == True) and  (check_empty(product_type) == True) and (check_empty(option1_name) == True) and (check_empty(option1_value) == True) and (check_empty(variant_price) == True)):
+               pass
+            else:
+                imgs = ",".join(product_imgs)
+                product_data[product_handle].append([product_url,product_handle,title,vendor,product_type,option1_name,option1_value,variant_price,imgs]) 
+          
         
         else:
         
@@ -299,10 +304,7 @@ def convert_into_dataframe(v):
 
 def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, processed_dir):
    
-    lock.acquire()
-
-        
-        
+    lock.acquire()   
     print("\n\n" + website_name + " Filter begin...\n")
      
     product_data = filter_data(website_name,downloaded_csv_path)
@@ -322,7 +324,7 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
    
     df.to_csv(processed_dir+website_name ,index=False ,encoding="utf-8-sig")
     print("\n\n" + website_name +" Reformat Finished....................\n")
-    os.remove(downloaded_csv_path)
+    #os.remove(downloaded_csv_path)
     
     if (int((thread_count))  % int(batch_size) == 0):
         print("Batch compelete -- zipping batch for download")
@@ -331,6 +333,7 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
     else:
       pass
     lock.release()
+
 
    
     
