@@ -119,6 +119,7 @@ def zip_data(scraped_folder,batch_size):
   if (download_command_run.returncode == 0):
       base_name = os.path.basename(zip_to_download )
       dir_name  = os.path.dirname(scraped_folder)
+      batch_size ="{:02d}".format(batch_size)
       renamed = "batch-"+ str(batch_size)+"-" + base_name 
       zip_to_download = os.rename(zip_to_download, renamed)
       print(str(renamed) + " zipped folder sucessfully")
