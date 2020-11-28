@@ -20,6 +20,12 @@ finished_thread = []
 ended_threads = []
 lock = threading.Lock()
 
+def delete_extra_zip_files():
+  zip_files = glob.glob("/content/" + "*.zip")
+  if(len(zip_files) == 3):
+    os.remove(zip_batch[0])
+
+
 
 
 def download_library():
@@ -115,11 +121,9 @@ def zip_data(scraped_folder,batch_size):
   zip_to_download =  scraped_folder[:-1] + ".zip" 
   download_command = "zip -r " +zip_to_download + " " + scraped_folder  
   download_command_run = subprocess.run(download_command,shell=True)
-  try:
-    batch_size ="{:02d}".format(batch_size)
-  except: 
-    batch_size ="Full"
-    
+
+  batch_size ="{:02d}".format(batch_size)
+
   if (download_command_run.returncode == 0):
       base_name = os.path.basename(zip_to_download )
       dir_name  = os.path.dirname(scraped_folder)
@@ -129,6 +133,7 @@ def zip_data(scraped_folder,batch_size):
       print(str(renamed) + " zipped folder sucessfully")
       print("Batch compelete -- batch zipped ready for download")
       trigger_download(str(renamed))
+      delete_extra_zip_files()
       return True
  
   else:
