@@ -22,9 +22,12 @@ lock = threading.Lock()
 
 def delete_extra_zip_files():
   zip_files = glob.glob("/content/" + "*.zip")
+  zip_files = zip_files.sort(key=os.path.getmtime)
+  print(zip_files)
   if(len(zip_files) == 3):
+    print(zip_files)
     os.remove(zip_files[0])
-
+    print(str(zip_files[0]) + "Extra file deleted..")
 
 
 
