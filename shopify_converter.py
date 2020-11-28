@@ -90,7 +90,7 @@ def finish__reformat_threads():
     for thread in reformat_thread:
         thread.join()
         
-def close_thread(reformat_thread):
+def close_thread(index):
     
     reformat_thread[index].join()
     finished_thread.append(index)  
