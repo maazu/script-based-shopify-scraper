@@ -105,10 +105,9 @@ def trigger_download(download_dir):
         print("\n" + download_dir + "Trigger sucessfull....... ")
     
     except Exception as e:
-        
-        
+ 
         print("\nDownload trigger failed, please download manually....... ")
-        print"\nDownload trigger error: =========>" +str(e))
+        print"\nDownload trigger error: =========>" + str(e) )
         
       
 def zip_data(scraped_folder,batch_size):
