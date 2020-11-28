@@ -218,6 +218,7 @@ def check_empty2(value):
 
 
 
+
 def get_all_product_images(df):
     
 
@@ -235,16 +236,23 @@ def get_all_product_images(df):
         else:
             product_image_data[product_handle]= ([image_Src])
 
-    return product_image_dataa
+    return product_image_data
     
     
 
 def get_single_product_imgs(product_handle,product_img_dict):
     
      imgs_list =  product_img_dict.get(product_handle)
+     imgs_list = list(dict.fromkeys(imgs_list))
      if(len(imgs_list) > 0):
         try:
             imgs_list.remove('') 
+             
+        except Exception as e:
+            pass   
+        
+        try:
+            imgs_list.remove('nan') 
              
         except Exception as e:
             pass     
@@ -290,6 +298,7 @@ def filter_data(website_name,csv_file_name):
 
 
 
+
 def convert_into_dataframe(v):
         
         fields = ['Product Url','Handle','Title', 'Vendor', 'Type', 'Option1 Name' ,'Option1 Value', 'Variant Price','Image Src']
@@ -302,9 +311,13 @@ def convert_into_dataframe(v):
 
 
 
+
 def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, processed_dir):
    
-    lock.acquire()   
+    lock.acquire()
+
+        
+        
     print("\n\n" + website_name + " Filter begin...\n")
      
     product_data = filter_data(website_name,downloaded_csv_path)
@@ -324,7 +337,7 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
    
     df.to_csv(processed_dir+website_name ,index=False ,encoding="utf-8-sig")
     print("\n\n" + website_name +" Reformat Finished....................\n")
-    #os.remove(downloaded_csv_path)
+    os.remove(downloaded_csv_path)
     
     if (int((thread_count))  % int(batch_size) == 0):
         print("Batch compelete -- zipping batch for download")
@@ -333,6 +346,7 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
     else:
       pass
     lock.release()
+
 
 
    
