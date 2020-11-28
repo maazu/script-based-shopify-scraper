@@ -182,12 +182,12 @@ def step_one(choice,batch_size):
         print("======================================\n")
     
    
-    save_failed_csv(download_dir, failed_urls)
+    save_failed_csv(processed_dir, failed_urls)
     finish__reformat_threads()
     print("\n\nDownoload Finished==============================================\n")
     print("\n\nDonwload Directory ===>"+  str(download_dir)) 
     
-    return download_dir
+    return processed_dir
 
 
    
@@ -332,7 +332,7 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
 def steps(choice,batch_size):
   
   download_library()
-  download_dir = step_one(choice,batch_size)
+  processed_dir = step_one(choice,batch_size)
   print("---Sort + Download + Filter Time: {0:.3g} seconds ---".format (time.time() - start_time))
   print("-----------------------Script Finished ------------------------")  
   zip_data(processed_dir,"FULL")
