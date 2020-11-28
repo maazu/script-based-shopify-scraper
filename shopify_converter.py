@@ -178,7 +178,7 @@ def step_one(choice,batch_size):
         
        
         website_reading_count = website_reading_count + 1
-        
+       
         print("\nIteration ended======================================\n")
     
    
@@ -186,7 +186,7 @@ def step_one(choice,batch_size):
     finish__reformat_threads()
     print("\n\nDownoload Finished==============================================\n")
     print("\n\Reformatted Directory ===>"+  str(processed_dir)) 
-    os.remove(download_dir)
+    os.rmdir(download_dir)
     return processed_dir
 
 
@@ -204,7 +204,19 @@ def get_unique_products_list(csv_file_name):
    print("Total rows in csv: " + str(len(df.index)))
    unique_products = df['Handle'].unique()
    return unique_products
-   
+
+
+def check_empty(value):
+    
+    if(pd.isnull(value) == True):
+        return True
+    else: 
+        return value
+  
+
+
+
+
 def get_all_product_images(df):
    
     product_image_data = {}
@@ -213,13 +225,14 @@ def get_all_product_images(df):
         product_handle = row['Handle']
         image_Src  = check_empty(str(row['Image Src']))
         if(image_Src == True):
+              print("yes")
               pass 
         else:
-          if (product_handle in product_image_data): 
-            if ( image_Src.startswith('https')): 
+          if(product_handle in product_image_data):
+            if (image_Src.startswith('https')): 
               product_image_data[product_handle].append(image_Src)  
-            else:
-              product_image_data[product_handle]= ([image_Src])
+          else:
+            product_image_data[product_handle]= ([image_Src])
                 
     return product_image_data
     
@@ -257,16 +270,12 @@ def filter_data(website_name,csv_file_name):
         product_imgs  = get_single_product_imgs(product_handle,products_imgs_data)
         product_url = "https://www." + str(website_name) + "/products/" + str(product_handle)
         if(product_handle in product_data):
-          
-           if( (check_empty(title) == True) and (check_empty(vendor) == True) and  (check_empty(product_type) == True) and (check_empty(option1_name) == True) and (check_empty(option1_value) == True) and (check_empty(variant_price) == True)):
-               pass
-           else:
-                imgs = ",".join(product_imgs)
-                product_data[product_handle].append([product_url,product_handle,title,vendor,product_type,option1_name,option1_value,variant_price,imgs]) 
+            
+            imgs = ",".join(product_imgs)
+            product_data[product_handle].append([product_url,product_handle,title,vendor,product_type,option1_name,option1_value,variant_price,imgs]) 
+        
         else:
-          if( (check_empty(title) == True) and (check_empty(vendor) == True) and  (check_empty(product_type) == True) and (check_empty(option1_name) == True) and (check_empty(option1_value) == True) and (check_empty(variant_price) == True)):
-               pass
-          else:
+        
             imgs = ",".join(product_imgs)
             product_data[product_handle] = [[product_url,product_handle,title,vendor,product_type,option1_name,option1_value,variant_price,imgs]]
            
