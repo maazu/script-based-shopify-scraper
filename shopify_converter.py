@@ -120,7 +120,7 @@ def zip_data(scraped_folder,batch_size):
   if (download_command_run.returncode == 0):
       base_name = os.path.basename(zip_to_download )
       dir_name  = os.path.dirname(scraped_folder)
-      renamed = dir_name+"batch-"+ str(batch_size) + base_name 
+      renamed = "batch-"+ str(batch_size)+"-" + base_name 
       zip_to_download = os.rename(zip_to_download, renamed)
       print(zip_to_download + " zipped folder sucessfully")
       print("Batch compelete -- batch zipped ready for download")
@@ -294,11 +294,6 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
    
     lock.acquire()
 
-    if (int((thread_count))  % int(batch_size) == 0):
-        print("Batch compelete -- zipping batch for download")
-        zip_data(processed_dir,thread_count)
-        print("\nMoving to next batch")
-        
         
         
     print("\n\n" + website_name + " Filter begin...\n")
@@ -321,6 +316,13 @@ def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, pr
     df.to_csv(processed_dir+website_name ,index=False ,encoding="utf-8-sig")
     print("\n\n" + website_name +" Reformat Finished....................\n")
     os.remove(downloaded_csv_path)
+    
+    if (int((thread_count))  % int(batch_size) == 0):
+        print("Batch compelete -- zipping batch for download")
+        zip_data(processed_dir,thread_count)
+        print("\nMoving to next batch")
+    else:
+      pass
     lock.release()
 
    
