@@ -158,7 +158,7 @@ def step_one(choice,batch_size):
             
             downloaded_csv_path = download_dir + website_csv_name
            
-            while(os.path.exists(downloaded_csv_file) == True):
+            while(os.path.exists(downloaded_csv_path) == True):
               print("waiting for to be moved....")
               break
           
@@ -282,7 +282,7 @@ def convert_into_dataframe(v):
 
 
 
-def reformat_csv(website_name, csv_file_path, thread_count, batch_size, processed_dir):
+def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, processed_dir):
    
     lock.acquire()
     if (len(finished_thread)  % batch_size == 0):
@@ -294,8 +294,8 @@ def reformat_csv(website_name, csv_file_path, thread_count, batch_size, processe
         
     print("\n\n" + website_name + " Filter begin...\n")
      
-    product_data = filter_data(website_name,csv_file_path)
-    unique_products = get_unique_products_list(csv_file_path)
+    product_data = filter_data(website_name,downloaded_csv_path)
+    unique_products = get_unique_products_list(downloaded_csv_path)
     print("\n\n" + website_name + " Total Products: " + str(len(unique_products)))
     
     df_list = list()
