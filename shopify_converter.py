@@ -153,7 +153,7 @@ def step_one(choice,batch_size):
         website_csv_name = str(website_url +".csv")
         
         if(shopify_download_command(website_url) == 0):
-            subprocess.call("mv %s %s" % (website_csv_file_name, download_dir), shell=True)
+            subprocess.call("mv %s %s" % (website_csv_name, download_dir), shell=True)
             print("Download Succesful.................")
             
             downloaded_csv_path= download_dir + website_csv_file_name
@@ -169,7 +169,7 @@ def step_one(choice,batch_size):
 
         else:
             failed_urls.append(website_url)
-            subprocess.call("rm %s" % (website_csv_file_name), shell=True)
+            subprocess.call("rm %s" % (website_csv_name), shell=True)
             print("Failed Download.................")
         
        
