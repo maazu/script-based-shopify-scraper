@@ -23,7 +23,7 @@ lock = threading.Lock()
 def delete_extra_zip_files():
   zip_files = glob.glob("/content/" + "*.zip")
   if(len(zip_files) == 3):
-    os.remove(zip_batch[0])
+    os.remove(zip_files[0])
 
 
 
