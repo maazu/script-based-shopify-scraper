@@ -79,7 +79,7 @@ def check_empty(value):
   
 def shopify_download_command(website_url):
     
-    shopify_command = "shopify-csv-download https://www." + website_url +" > "+ str(website_url)+".csv"
+    shopify_command = "shopify-csv-download https://" + website_url +" > "+ str(website_url)+".csv"
     shopify_command_run = subprocess.run(shopify_command,shell=True)  
     #shopify_command_run.stdout.decode('utf-8')
     print("The command exit code was: %d" % shopify_command_run.returncode)
