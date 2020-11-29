@@ -1,61 +1,25 @@
-import subprocess
-import os,sys
-import time
-import glob
-import time
-import io
-import numpy as np
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Nov 29 22:19:43 2020
+
+@author: Maaz
+"""
+import os
+import requests
+import json
 import pandas as pd
-from google.colab import files
-from multiprocessing import Process
-from itertools import chain
+import re
+import time 
+import glob
 import threading
-from products_counter import *
-
+global summary_dict 
 start_time = time.time()
-global reformat_threads,finished_thread,ended_threads,lock
-
-reformat_thread = []
-finished_thread = []
-ended_threads = []
+summary_dict = {} 
 lock = threading.Lock()
-
-def delete_extra_zip_files():
-  zip_files = glob.glob("/content/" + "*.zip")
-  zip_files = zip_files.sort(key=os.path.getmtime)
-  print(zip_files)
-  if(len(zip_files) == 3):
-    print(zip_files)
-    os.remove(zip_files[0])
-    print(str(zip_files[0]) + "Extra file deleted..")
-
-
-
-def download_library():
- 
-   shopify_lib_repo = "wget -O - -q https://raw.githubusercontent.com/kishaningithub/shopify-csv-download/master/install.sh | sudo sh -s -- -b /usr/local/bin"
-   shopify_command_run = subprocess.run(shopify_lib_repo,shell=True)
-   print("The exit code was: %d" % shopify_command_run.returncode)
-
-def read_website_df():  
-   
-    
-    csv_file_name = select_csv()
-
-    products_count_data = (count_products(csv_file_name))
-    df = pd.DataFrame(list(products_count_data.items()),columns = ['website','total products']) 
-    df.sort_values(by=['total products'], inplace=True, ascending=True)
-    print("Total runnable urls in file --->", len(df) )   
-    df = df['website']
-    print("---Sorting Time : {0:.3g} seconds ---".format (time.time() - start_time))
-    return df
-
-def read_website_df_single():  
-    csv_file_name = select_csv()
-    df = pd.read_csv(csv_file_name).drop_duplicates(keep='first').reset_index()
-    df = df['website']
-    return df
-
+downloading_thread = []
+def generated_time():
+    geneerated_time = time.strftime("%Y-%m-%d-%H-%M-%S")
+    return geneerated_time
 
 
 def create_new_directory(location,folder_name):
@@ -68,311 +32,314 @@ def create_new_directory(location,folder_name):
 
 
 
-def check_empty(value):
-    
-    if(pd.isnull(value) == True):
-        return True
-    else: 
-        return value
-  
-    
-  
-def shopify_download_command(website_url):
-    
-    shopify_command = "shopify-csv-download https://" + website_url +" > "+ str(website_url)+".csv"
-    shopify_command_run = subprocess.run(shopify_command,shell=True)  
-    #shopify_command_run.stdout.decode('utf-8')
-    print("The command exit code was: %d" % shopify_command_run.returncode)
-    return shopify_command_run.returncode
+def select_csv():
+     confirm_dataset = input("Enter 'y' to confirm dataset upload: ")
+     if (confirm_dataset == "y"):
+        try:
+          directory  = os.getcwd() + "/"
+          uploaded_csv = glob.glob(directory + "*.csv")
+          if (len(uploaded_csv) > 0):
+            count = 0
+            print("Uploaded files \n")
+            print("index \t\tFound_csv_files\n")
+            for fcsv in uploaded_csv:
+              print(str(count) +"\t\t"+ fcsv)
+              count = count + 1
+            print("\nCheck the uploaded file in the left bar to make sure it's uploaded .......")
+            index_selected = input("Enter the index of the uploaded file: ==>  ")
+            index_selected = int(index_selected)
+            return uploaded_csv[index_selected]
+        except Exception as e:
+          print(e)
+     else:
+        print("please upload the csv dataset")
 
 
-def save_failed_csv(location, failed_urls):
-    
-    summary_directory = create_new_directory(location,"summary_directory")  
-    failded_df = pd.DataFrame(columns = ['Failed_URL'])
-    failded_df['Failed_URL'] =  pd.Series(failed_urls)  
-    failded_df.to_csv(summary_directory+"/"+"Failed-URL-"+ str(generated_time())+".csv", encoding='utf-8-sig' ,index=False)  
-    
-    
-def finish__reformat_threads():
-    
-    for thread in reformat_thread:
-        thread.join()
-        
-def close_thread(index):
-    if(index >= 0):
-      reformat_thread[index].join()
-      finished_thread.append(index)  
-    else:
-      pass
-    
-def trigger_download(download_dir):
-    try:
-      
-        print("\n" +  download_dir + "Attempting to trigger download automaticllay ")
-        files.download(download_dir)
-        print("\n" + download_dir + "Trigger sucessfull....... ")
-    
-    except Exception as e:
- 
-        print("\nDownload trigger failed, please download manually....... ")
-        print("\nDownload trigger error: =========>" + str(e) )
-        
-      
-def zip_data(scraped_folder,batch_size):
- 
-  zip_to_download =  scraped_folder[:-1] + ".zip" 
-  download_command = "zip -r " +zip_to_download + " " + scraped_folder  
-  download_command_run = subprocess.run(download_command,shell=True)
-  if(isnumeric(int(batch_size)) == True ):
-    batch_size ="{:02d}".format(batch_size)
-
-  if (download_command_run.returncode == 0):
-      base_name = os.path.basename(zip_to_download )
-      dir_name  = os.path.dirname(scraped_folder)
-      
-      renamed = "batch-"+ str(batch_size)+"-" + base_name 
-      zip_to_download = os.rename(zip_to_download, renamed)
-      print(str(renamed) + " zipped folder sucessfully")
-      print("Batch compelete -- batch zipped ready for download")
-      trigger_download(str(renamed))
-      delete_extra_zip_files()
-      return True
- 
-  else:
-      print(zip_to_download + " zipped failure")
-      return False
-
-        
-def step_one(choice,batch_size):
-   
-    if( choice == "all"):
-    
-      df = read_website_df() 
-    else:
-      df = read_website_df_single()
-    
-    download_dir = create_new_directory("/content/","unprocessed")
-    processed_dir = create_new_directory("/content/","reformatted")
-    WEBSITE_URLS_DF = df.drop_duplicates( keep='first')
-    total_count = len(WEBSITE_URLS_DF)
-    website_reading_count = 0
-    failed_urls = list()
-   
-    
-    for website_url in WEBSITE_URLS_DF:
-        website_url = str(website_url)
-       
-        print(str(website_reading_count+1)+"/"+str(total_count)+" Reading "+ str(website_url) +"...................")  
-        
-        website_csv_name = str(website_url +".csv")
-        
-        if(shopify_download_command(website_url) == 0):
-            
-            subprocess.call("mv %s %s" % (website_csv_name, download_dir), shell=True)
-            print("Download Succesful.................")
-            
-            downloaded_csv_path = download_dir + website_csv_name
-           
-            while(os.path.exists(downloaded_csv_path) == True):
-              print("waiting for to be moved....")
-              break
-          
-            thread_count  = website_reading_count
-            reformatting_thread = threading.Thread(target= reformat_csv, args=(website_csv_name,downloaded_csv_path,thread_count,batch_size,processed_dir))
-            reformat_thread.append(reformatting_thread)
-            reformatting_thread.start() 
-            
-        else:
-            failed_urls.append(website_url)
-            subprocess.call("rm %s" % (website_csv_name), shell=True)
-            print("Failed Download.................")
-        
-       
-        website_reading_count = website_reading_count + 1
-       
-        print("\nIteration ended======================================\n")
-    
-   
-    save_failed_csv(processed_dir, failed_urls)
-    finish__reformat_threads()
-    print("\n\nDownoload Finished==============================================\n")
-    print("\n\Reformatted Directory ===>"+  str(processed_dir)) 
-    os.rmdir(download_dir)
-    return processed_dir
-
-
-   
-def read_df_from_csv(csv_file_name):
-    
-    fields = ['Handle','Title', 'Vendor', 'Type', 'Option1 Name' ,'Option1 Value', 'Variant Price','Image Src']
-    df = pd.read_csv(csv_file_name,low_memory=False)
+def read_website_df_single():  
+    csv_file_name = select_csv()
+    df = pd.read_csv(csv_file_name).drop_duplicates(keep='first').reset_index()
     return df
 
-        
-def get_unique_products_list(csv_file_name):
-   
-   df = read_df_from_csv(csv_file_name)    
-   print("Total rows in csv: " + str(len(df.index)))
-   unique_products = df['Handle'].unique()
-   return unique_products
 
 
-def check_empty2(value):
+def send_requst(url):
     
-    if((value) == ""):
-        n= ""
-        return n 
-    else: 
-        return value
-  
-
-
-def get_all_product_images(df):
-    
-
-    product_image_data = {}
-    count = 1
-    for index, row in df.iterrows():
-        product_handle = row['Handle']
-        image_Src  = check_empty2(str(row['Image Src']))
-
-        if(product_handle in product_image_data):
-
-            if( image_Src.startswith('https')):
-
-                product_image_data[product_handle].append(image_Src)
+    try:
+        request = requests.get(url, timeout = 5)
+        if request.status_code == 200:
+            print("Found valid API Endpoint Response code ===> " + str(request.status_code) )
+            return True
         else:
-            product_image_data[product_handle]= ([image_Src])
+            print("API Endpoint Not Found Response code ===> " + str(request.status_code) )
+            return False
 
-    return product_image_data
-    
-    
+    except Exception as e:
+        print(url, e)
+        return False
 
-def get_single_product_imgs(product_handle,product_img_dict):
-    
-     imgs_list =  product_img_dict.get(product_handle)
-     imgs_list = list(dict.fromkeys(imgs_list))
-     if(len(imgs_list) > 0):
-        try:
-            imgs_list.remove('') 
-             
-        except Exception as e:
-            pass   
-        
-        try:
-            imgs_list.remove('nan') 
-             
-        except Exception as e:
-            pass     
-     imgs_list = set(imgs_list)
-     imgs_list = (list(imgs_list))
-     return imgs_list
-    
 
-def filter_data(website_name,csv_file_name):
-   
-    df = read_df_from_csv(csv_file_name)
-    products_imgs_data = get_all_product_images(df)
-    product_data = {}
-    df_list = list()
 
-    for index, row in df.iterrows():
-        product_handle = row['Handle']
-        title  = row['Title']
-        vendor = row['Vendor']
-        product_type   = row['Type']
-        option1_name = row['Option1 Name']
-        option1_value = row['Option1 Value']
-        variant_price  =  row['Variant Price']
-        product_imgs  = get_single_product_imgs(product_handle,products_imgs_data)
-        product_url = "https://www." + str(website_name) + "/products/" + str(product_handle)
-        if(product_handle in product_data):
-           
-            if( (check_empty(title) == True) and (check_empty(vendor) == True) and  (check_empty(product_type) == True) and (check_empty(option1_name) == True) and (check_empty(option1_value) == True) and (check_empty(variant_price) == True)):
-               pass
-            else:
-                imgs = ",".join(product_imgs)
-                product_data[product_handle].append([product_url,product_handle,title,vendor,product_type,option1_name,option1_value,variant_price,imgs]) 
+
+
+def check_shopify_store(host_name,store_name):
+
+   if (pd.isnull(host_name) == False):
+       page_count = str(1)
+       given_storename = "https://" + store_name + "/products.json?limit=250&page="  + page_count
+       given_hostname_shop = "https://shop." + host_name + "/products.json?limit=250&page=" + page_count
+       given_hostname_store = "https://store." + host_name + "/products.json?limit=250&page=" + page_count
+       given_hostname_www = "https://www." + host_name + "/products.json?limit=250&page=" + page_count
+       shop_store_name = "https://shop." + store_name + "/products.json?limit=250&page=" + page_count
+       store_sore_name = "https://store." + store_name + "/products.json?limit=250&page="+ page_count
+       store_name_www = "https://www." + store_name + "/products.json?limit=250&page=" + page_count
+      
+       request_given_storename = send_requst(given_storename)
+       if(request_given_storename == True):
+           return given_storename
+       
+       else: 
+           if(given_hostname_shop == True):
+               return given_hostname_shop
           
+           else:
+               if(given_hostname_store == True):
+                   return given_hostname_store
+          
+               else:
+                   if(given_hostname_www == True):
+                       return given_hostname_www
+          
+                   else:
+                       if(shop_store_name == True):
+                           return shop_store_name
+          
+                       else:
+                            if(store_sore_name == True):
+                                return store_sore_name
+                       
+                            else:
+                                if(store_name_www == True):
+                                    return store_name_www
+                                else:
+                                    print("All seven attempts failed ===> Adding the url into failed urls ==>" + host_name)
+                                    return False
+   else:    
+       
+       print(host_name, "empty url....")
+       return False
+
+
+
+
+def check_valid_url(df):
+    sucessful_count = 0
+    checking_count = 1
+    download_dir = create_new_directory("","shopify-data")
+    for index, row in df.iterrows():
         
+        host_name = str(row['hostname'])
+        store_url = str(row['store'])
+        valid_url = check_shopify_store(host_name,store_url)
+        print(str(checking_count) +"/"+str(len(df))+ "validating "+ store_url +" shopify API endpoint..............")
+        if(valid_url != False):
+            sucessful_count = sucessful_count + 1 
+            valid_url = valid_url[8:-31]
+            summary_dict[host_name] = [store_url,valid_url]
+            download_thread = threading.Thread(target= start_downloading, args=(download_dir,valid_url,sucessful_count))
+            downloading_thread.append(download_thread)
+            download_thread.start() 
+    
         else:
-        
-            imgs = ",".join(product_imgs)
-            product_data[product_handle] = [[product_url,product_handle,title,vendor,product_type,option1_name,option1_value,variant_price,imgs]]
-           
+            summary_dict[host_name] = [store_url,"NOT FOUND"]
 
-    print("Product images Combined.....")
-    return product_data
+        checking_count = checking_count + 1 
 
 
+def get_option_names(product_count,product_dict,option_positon):
+    total_options = len(product_dict['options'])
+    option_name = ['','','']
+    for option_number in range(0, total_options):
+        option_name[option_number] = (product_dict['options'][option_number]["name"])
 
-
-def convert_into_dataframe(v):
-        
-        fields = ['Product Url','Handle','Title', 'Vendor', 'Type', 'Option1 Name' ,'Option1 Value', 'Variant Price','Image Src']
-        df = pd.DataFrame(v, columns = fields)
-        df = df.join(df['Image Src'].str.split(',', expand=True).add_prefix('Image Src '))
-        df = df.drop('Image Src', 1)
-        df.rename(columns={'Image Src 0': 'Image Src'}, inplace=True)
-        
-        return df
-
-
-
-
-def reformat_csv(website_name, downloaded_csv_path, thread_count, batch_size, processed_dir):
-   
-    lock.acquire()    
-    print("\n\n" + website_name + " Filter begin...\n")
-     
-    product_data = filter_data(website_name,downloaded_csv_path)
-    unique_products = get_unique_products_list(downloaded_csv_path)
-    print("\n\n" + website_name + " Total Products: " + str(len(unique_products)))
-    
-    df_list = list()
-   
-    for i in unique_products:
-        v = np.array(product_data[i])
-        
-        df_list.append(convert_into_dataframe(v))
-    df = pd.concat(df_list)
-    
-    print("\n\n"+website_name + " dataframe combined.......\nImage reformatted")
-    print("\n\n" + website_name + " Total rows after formatting: " + str(len(df.index)))
-   
-    df.to_csv(processed_dir+website_name ,index=False ,encoding="utf-8-sig")
-    print("\n\n" + website_name +" Reformat Finished....................\n")
-    os.remove(downloaded_csv_path)
-    
-    if (int((thread_count))  % int(batch_size) == 0):
-        print("Batch compelete -- zipping batch for download")
-        zip_data(processed_dir,thread_count)
-        print("\nMoving to next batch")
+    if(option_positon == 1):
+        return option_name[0]
+    elif(option_positon == 2):
+        return option_name[1]
+    elif (option_positon == 3):
+        return option_name[2]
     else:
-      pass
-    lock.release()
+        print("invalid request")
+        return ""
+
+
+
+def get_single_variant_option_value(product_count,variant_number,product_dict,option_name):
+    
+    option_value = product_dict['variants'][variant_number][option_name]
+    
+    return option_value
+
+def get_single_variant_price(product_count,variant_number,product_dict,price):
+    
+    price = product_dict['variants'][variant_number][price]
+    
+    return price
+
+
+def get_product_images(product_count,product_dict):
+    
+    total_images = len(product_dict['images'])
+    product_imgs = list()
+    for image_number in range(0, total_images):
+        product_imgs.append((product_dict['images'][image_number]['src']))
+    separator = ','
+    product_imgs = (separator.join(product_imgs))
+    return product_imgs
+
+
+
+def get_products_dataframe(website_name,product_json):
+    print("Attempt was made")
+    products_records = []
+  
+    total_products = len(product_json['products'])
+    for i in range(0,total_products):
+        print("Writing product ==>" +str(i+1))
+        product_count = i
+      
+      
+        title = (product_json['products'][product_count]['title'])
+        handle = (product_json['products'][product_count]['handle'])
+        body_html = (product_json['products'][product_count]['body_html'])
+        body_html = re.sub(r"[\n\t\s]*", "", body_html)
+        vendor = (product_json['products'][product_count]['vendor'])
+        product_type = (product_json['products'][product_count]['product_type'])
+        product_tag = (product_json['products'][product_count]['tags'])
+        product_tag = ",".join(str(x) for x in product_tag)
+        total_variants = (len(product_json['products'][product_count]['variants']))
+        product_url = "https://" + str(website_name) + "/products/" + str(handle)
+        #print("Total variants ==> " + str(total_variants))
+        product_dic = product_json['products'][product_count]
+            
+        for variant_num in range(0,total_variants):  
+            variant_number = variant_num
+            
+           
+            option1_name = get_option_names(product_count,product_dic,1)
+            option2_name = get_option_names(product_count,product_dic,2)
+            option3_name = get_option_names(product_count,product_dic,3)  
+            option1_value = (get_single_variant_option_value(product_count,variant_number,product_dic,"option1"))
+            option2_value = (get_single_variant_option_value(product_count,variant_number,product_dic,"option2"))
+            option3_value = (get_single_variant_option_value(product_count,variant_number,product_dic,"option3"))
+            variant_price  = (get_single_variant_price(product_count,variant_number,product_dic,"price"))
+            product_images = get_product_images(product_count,product_dic)
+            
+            products_records.append([product_url,handle,title,body_html,vendor,product_type,product_tag,option1_name,option1_value,option2_name,option2_value,option3_name,option3_value,variant_price,product_images])
+            
+    print("======================================")
+   
+    fields = ['URL','Handle','Title', 'Body (HTML)','Vendor', 'Type','Tags','Option1 Name','Option1 Value','Option2 Name', 'Option2 Value', 'Option3 Name', 'Option3 Value','Variant Price','Image Src']
+    df = pd.DataFrame(products_records,columns = fields)
+    df = df.join(df['Image Src'].str.split(',', expand=True).add_prefix('Image Src '))
+    df = df.drop('Image Src', 1)
+    df.rename(columns={'Image Src 0': 'Image Src'}, inplace=True)
+    #print(df)
+    return df
+
+
+
+def get_json_dump(valid_url):
+    try:
+        print("Reading url ===> " + valid_url)
+        product_json = requests.get(valid_url,timeout = 8).json()
+        return product_json
+    except Exception as e:
+        print(e)
+        return False
+
+
+def start_downloading(download_dir,valid_url,sucessful_count):
+    df_list = list()
+    next_page = True
+    page_count = 0
+    web_address = valid_url
+    total_products = 0
+    while(next_page != False):
+        try:
+           page_count = page_count + 1
+          
+           valid_url  = "https://" + valid_url + "/products.json?limit=250&page="+ str(page_count)
+           product_json = (get_json_dump(valid_url))
+           if(product_json != False):
+              
+               #print(product_json)
+               total_products = len(product_json['products'])
+               
+               if (total_products < 0 ):
+                  print("Reading "+web_address+" Products From Page......" + str(page_count)+ " Total Products Found on Page...." + str(total_products))
+                  df = get_products_dataframe(web_address,product_json)
+                  df_list.append(df)
+                   
+               elif (total_products < 250):
+                   print("Reading "+web_address+" Products From Page......" + str(page_count)+ " Total Products Found on Page...." + str(total_products))
+                   df = get_products_dataframe(web_address,product_json)
+                   df_list.append(df)
+                   next_page = False
+                    
+               elif (total_products == 0):
+                   print("Reading "+web_address+" Products From Page......" + str(page_count)+ " Total Products Found on Page...." + str(total_products))
+                   print("Total Products "+ str(web_address) +"...." + str(total_products))
+                   next_page = False
+                   break
+               
+               else:
+                 print("Total Products "+ str(web_address) +"...." + str(total_products))
+                 next_page = False
+                 break
+
+        except Exception as e:
+           print(e)
+           print("Total Products "+ str(web_address) +"...." + str(total_products))
+           next_page = False
+           break
+    
+    
+    
+    
+    if(len(df_list) > 0):
+        try:
+            
+            df = pd.concat(df_list)
+            df.to_csv(download_dir+web_address+".csv",index =False, encoding ="utf-8-sig")
+            print("Data downloaded sucessfully")
+        except Exception as e:
+            print(e)
+    else:
+        print("Empty dataframe found ")
+        
+  
 
     
-def steps(choice,batch_size):
-  
-  download_library()
-  processed_dir = step_one(choice,batch_size)
-  print("---Sort + Download + Filter Time: {0:.3g} seconds ---".format (time.time() - start_time))
-  print("-----------------------Script Finished ------------------------")  
-  zip_data(processed_dir,"FULL")
-  
 
-  
-  
+
 if __name__ == "__main__": 
- 
+   
+  print("Please upload data and enter batch size")
   batch_size = input("Enter batch size ============>") 
-  choice = input("Filter type \nEnter 'a' for  sort+download+reformat \nEnter 'b' for download+reformat only: \n ====>") 
-  if(choice == 'a'):
-    steps("all",batch_size)
-  elif(choice == 'b'):
-    steps("b",batch_size)
-  else:
-    print("invalid choice")
+  
+  df = (read_website_df_single())
+  check_valid_url(df)
+ 
+  df = pd.DataFrame(list(summary_dict.items()),columns = ['hostname','store+validurl']) 
+  
+  df = df.join(df['store+validurl'].str.split(',', expand=True).add_prefix('Store url '))
+  df = df.drop('store+validurl', 1)
+  df.rename(columns={'Store url 1': 'Valid Shopify Endpoints'}, inplace=True)
+  df.to_csv("urls_test.csv",index =False, encoding ="utf-8-sig")
+  print("---Script total time ==> : {0:.3g} seconds ---".format (time.time() - start_time))
+  #start_downloading("","pt.business.babbel.com",1)
 
+#-------------------------------------
+
+
+    
