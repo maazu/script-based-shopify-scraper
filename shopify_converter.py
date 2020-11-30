@@ -439,7 +439,7 @@ def start_downloading(download_dir,valid_url,valid_url_hostname,sucessful_count,
     if(len(csv_files)!= 0):
         if (len(csv_files) % int(batch_size) == 0):
             download_dir = download_dir[:-1]
-            zip_name = "batch-"+str(batch_size)+"-shopify-data"+generated_time()+".zip"
+            zip_name = "batch-size"+str(csv_files)+"-shopify-data"+generated_time()+".zip"
             shutil.make_archive(download_dir, 'zip', download_dir)
             while(os.path.exists(download_dir+".zip") == True):
                 print("waiting for download to get ready....")
