@@ -436,7 +436,12 @@ def start_downloading(download_dir,valid_url,valid_url_hostname,sucessful_count,
     no_products_df.to_csv(summary_dir+"no-products.csv",index =False, encoding ="utf-8-sig")
   
     csv_files = glob.glob(download_dir+"*.csv")
+    zip_files = glob.glob("/content/"+"*.zip")
+    zip_files.sort(key=os.path.getmtime)
     if(len(csv_files)!= 0):
+        if(len(zip_files) == 3):
+          os.remove(zip_files[0])
+          
         if (len(csv_files) % int(batch_size) == 0):
             download_dir = download_dir[:-1]
             zip_name = "batch-size"+str(len(csv_files))+"-shopify-data"+generated_time()+".zip"
@@ -446,6 +451,9 @@ def start_downloading(download_dir,valid_url,valid_url_hostname,sucessful_count,
                 break
             os.rename(download_dir+".zip", zip_name)
             print("Batch generated ...............")
+
+     
+
     lock.release()                 
     print("Finished reading ===============> " + str(sucessful_count))
 
