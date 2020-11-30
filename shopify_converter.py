@@ -14,15 +14,15 @@ import glob
 import threading
 import subprocess
 global summary_dict 
+import shutil
+from os import listdir
+from os.path import isfile, join
 start_time = time.time()
 summary_dict = {} 
 lock = threading.Lock()
 downloading_thread = []
 prudcts_summary = {}
-global batch_size
-batch_size = 0
-
-
+no_products = {}
 def generated_time():
     geneerated_time = time.strftime("%Y-%m-%d-%H-%M-%S")
     return geneerated_time
@@ -88,7 +88,7 @@ def send_requst(url):
 
     except Exception as e:
         #print(url, e)
-        print(url + "Attemptinng with another url..................." )
+        print("\n"+ url + "\nAttempting with another url..................." )
         return False
 
 
@@ -142,7 +142,7 @@ def check_shopify_store(host_name,store_name):
                                 if(request_store_name_www == True):
                                     return store_name_www
                                 else:
-                                    print("All seven attempts failed ===> Adding the url into failed urls ==>" + host_name)
+                                    print("All seven attempts failed\nAdding the url into failed urls ==> \nURL: " + host_name)
                                     return False
    else:    
        
@@ -153,27 +153,30 @@ def check_shopify_store(host_name,store_name):
    
 def check_threads():
     try:   
-        for t in downloading_thread:
-            t.join()
-            downloading_thread.remove(t)
+        for i in range(0,20):
+            t =  downloading_thread[i]
+            try:
+                t.join()
+                t.remove(downloading_thread)
+            except RuntimeError as err:
+                if 'cannot join current thread' in err.args[0]:
+                    # catchs main thread
+                    continue
+                else:
+                    raise
     except Exception as e:
         print(e)
         print("Thread Error =============> "+ str(e))    
 
 
-
-def zip_for_downlaod(download_dir):
-      
-      zip_to_download =  download_dir[:-1] + ".zip" 
-      download_command = "zip -r " + zip_to_download + " " + download_dir      
-      download_command_run = subprocess.run(download_command,shell=True)	  
+	
       
 def listToString(s):  
     str1 = "," 
     return (str1.join(s)) 
 
 
-def check_valid_url(df):
+def check_valid_url(df,batch_size):
     sucessful_count = 0
     checking_count = 1
   
@@ -188,19 +191,24 @@ def check_valid_url(df):
             sucessful_count = sucessful_count + 1 
             valid_url_hostname = valid_url[8:-31]
             summary_dict[host_name] = [store_url,valid_url]
-            download_thread = threading.Thread(target= start_downloading, args=(download_dir,valid_url,valid_url_hostname,sucessful_count))
+            download_thread = threading.Thread(target= start_downloading, args=(download_dir,valid_url,valid_url_hostname,sucessful_count,batch_size))
             downloading_thread.append(download_thread)
             download_thread.start() 
     
         else:
             summary_dict[host_name] = [store_url,"NOT FOUND"]
 
-        checking_count = checking_count + 1 
+        checking_count = checking_count + 1
+        print("\Website count  ==> " + str(checking_count))
         print("\nTotal running jobs ==> " + str(len(downloading_thread)))
+        
+                
         if(len(downloading_thread) == 100):
                 check_threads()
                 
-    check_threads()       
+    for t in downloading_thread:
+            t.join()
+    print("waitning for all threads o be finised..............")      
                 
 
 def get_option_names(product_count,product_dict,option_positon):
@@ -303,26 +311,35 @@ def get_products_dataframe(website_name,product_json):
     df = df.drop('Image Src', 1)
     df.rename(columns={'Image Src 0': 'Image Src'}, inplace=True)
     #print(df)
+       
     return df
 
 
 
 def get_json_dump(valid_url,page_count):
     try:
+        valid_url_hostname = valid_url[8:-31]
         valid_url =  valid_url[:-1]
         valid_url  = valid_url + str(page_count)
         print("Reading ===> " + valid_url)
         product_json = requests.get(valid_url).json()
-        return product_json
-    
+        if "products" in product_json.keys():
+           print("Shopify Store has products ====> True")
+           no_products[valid_url_hostname] = "YES"
+           return product_json
+        else:
+           no_products[valid_url_hostname] = "NO"
+           print("Shopify Store has products ====> False")
+           print("Skipping to next url...............")
+           return False
     except Exception as e:
         print("while loop ",e)
         
         return False
 
 
-def start_downloading(download_dir,valid_url,valid_url_hostname,sucessful_count):
-    lock.acquire()
+def start_downloading(download_dir,valid_url,valid_url_hostname,sucessful_count,batch_size):
+    lock.acquire()    
     df_list = list()
     next_page = True
     page_count = 0
@@ -341,31 +358,40 @@ def start_downloading(download_dir,valid_url,valid_url_hostname,sucessful_count)
                
                if (total_products == 250):
                   print("Reading "+valid_url_hostname+" Products From Page......" + str(page_count)+ "\nTotal Products Found on Page...." + str(total_products))
-                  df = get_products_dataframe(valid_url,product_json)
+                  df = get_products_dataframe(valid_url_hostname,product_json)
                   df_list.append(df)
-                  total_products_count = total_products_count + 1
-                  if(valid_url not in prudcts_summary ):
-                       prudcts_summary[valid_url] =  total_products_count
+
+                  total_products_count = total_products_count + total_products 
+                  if(valid_url_hostname not in prudcts_summary ):
+                       prudcts_summary[valid_url_hostname] =  total_products_count
                   else:
-                      prudcts_summary[valid_url] =  prudcts_summary[valid_url] + total_products_count
+                      prudcts_summary[valid_url_hostname] =  prudcts_summary[valid_url_hostname] + total_products_count
+                  time.sleep(0.30)
               
                elif (total_products < 250):
                    print("Reading "+valid_url_hostname+" Products From Page......" + str(page_count)+ "\nTotal Products Found on Page...." + str(total_products))
                    print("Total Products "+ str(valid_url) +"...." + str(total_products))
+                   df = get_products_dataframe(valid_url_hostname,product_json)
+                   df_list.append(df)
+                   total_products_count = total_products_count + total_products 
                    if(valid_url not in prudcts_summary ):
-                       prudcts_summary[valid_url] =  total_products_count
+                       prudcts_summary[valid_url_hostname] =  total_products_count
                    else:
-                      prudcts_summary[valid_url] =  prudcts_summary[valid_url] + total_products_count
+                      prudcts_summary[valid_url_hostname] =  prudcts_summary[valid_url_hostname] + total_products_count
+                   time.sleep(0.30)
                    next_page = False
+                   
                    break
                     
                elif (total_products == 0):
                    print("Reading "+valid_url_hostname+" Products From Page......" + str(page_count)+ "\nTotal Products Found on Page...." + str(total_products))
                    print("Total Products "+ str(valid_url) +"...." + str(total_products))
+                   total_products_count = total_products_count + total_products 
                    if(valid_url not in prudcts_summary ):
                        prudcts_summary[valid_url] =  total_products_count
                    else:
                       prudcts_summary[valid_url] =  prudcts_summary[valid_url] + total_products_count
+                   time.sleep(0.30)
                    next_page = False
                    break
                
@@ -395,13 +421,7 @@ def start_downloading(download_dir,valid_url,valid_url_hostname,sucessful_count)
     else:
         print("Empty dataframe found ")
     
-    lock.release()  
     
-    lock.acquire()    
-    if(int(sucessful_count) < 0):
-        if int(sucessful_count) % int(batch_size) == 0:
-            zip_for_downlaod(download_dir)
-   
     
     product_count_summary_df =  pd.DataFrame(list(prudcts_summary.items()),columns = ['store','total products'])
     product_count_summary_df.to_csv(summary_dir+"website_proudct_count.csv",index =False, encoding ="utf-8-sig")
@@ -411,11 +431,23 @@ def start_downloading(download_dir,valid_url,valid_url_hostname,sucessful_count)
     df = df.join(df['store+validurl'].str.split(',', expand=True).add_prefix('Store url '))
     df = df.drop('store+validurl', 1)
     df.rename(columns={'Store url 0': 'Valid Shopify Endpoints'}, inplace=True)
-    df.to_csv(summary_dir+"full_url_summary.csv",index =False, encoding ="utf-8-sig")
-    
-    lock.release()    
-    
-
+    df.to_csv(summary_dir+"full-url-summary.csv",index =False, encoding ="utf-8-sig")
+    no_products_df =  pd.DataFrame(list(summary_dict.items()),columns = ['hostname','Product Status']) 
+    no_products_df.to_csv(summary_dir+"no-products.csv",index =False, encoding ="utf-8-sig")
+  
+    csv_files = glob.glob(download_dir+"*.csv")
+    if(len(csv_files)!= 0):
+        if (len(csv_files) % int(batch_size) == 0):
+            download_dir = download_dir[:-1]
+            zip_name = "batch-"+str(batch_size)+"-shopify-data"+generated_time()+".zip"
+            shutil.make_archive(download_dir, 'zip', download_dir)
+            while(os.path.exists(download_dir+".zip") == True):
+                print("waiting for download to get ready....")
+                break
+            os.rename(download_dir+".zip", zip_name)
+            print("Batch generated ...............")
+    lock.release()                 
+    print("Finished reading ===============> " + str(sucessful_count))
 
 if __name__ == "__main__": 
    
@@ -425,13 +457,13 @@ if __name__ == "__main__":
  
 
   df = (read_website_df_single())
-  check_valid_url(df)
+  check_valid_url(df,batch_size)
   
   print(downloading_thread)
   
+  
+  shutil.make_archive(download_dir, "zip", download_dir)
+  
   print("---Script total time ==> : {0:.3g} seconds ---".format (time.time() - start_time))
- 
- 
-  #start_downloading("","www.boutiquetozzi.com",1)
 
 #------------------------------------- 
