@@ -87,7 +87,8 @@ def send_requst(url):
             return False
 
     except Exception as e:
-        print(url, e)
+        #print(url, e)
+        print(url + "Attemptinng with another url..................." )
         return False
 
 
@@ -112,27 +113,33 @@ def check_shopify_store(host_name,store_name):
            return given_storename
        
        else: 
-           if(given_hostname_shop == True):
+           request_given_hostname_shop = send_requst(given_hostname_shop)
+           if(request_given_hostname_shop == True):
                return given_hostname_shop
           
            else:
-               if(given_hostname_store == True):
+               request_given_hostname_store = send_requst(given_hostname_store)
+               if(request_given_hostname_store == True):
                    return given_hostname_store
           
                else:
-                   if(given_hostname_www == True):
+                   request_given_hostname_www= send_requst(given_hostname_www)
+                   if(request_given_hostname_www == True):
                        return given_hostname_www
           
                    else:
-                       if(shop_store_name == True):
+                       request_shop_store_name = send_requst(shop_store_name)
+                       if(request_shop_store_name == True):
                            return shop_store_name
           
                        else:
-                            if(store_sore_name == True):
+                            request_store_sore_name = send_requst(store_sore_name)
+                            if(request_store_sore_name == True):
                                 return store_sore_name
                        
                             else:
-                                if(store_name_www == True):
+                                request_store_name_www = send_requst(store_name_www)
+                                if(request_store_name_www == True):
                                     return store_name_www
                                 else:
                                     print("All seven attempts failed ===> Adding the url into failed urls ==>" + host_name)
@@ -142,7 +149,7 @@ def check_shopify_store(host_name,store_name):
        print(host_name, "empty url....")
        return False
    
-    
+
    
 def check_threads():
     try:   
@@ -303,10 +310,11 @@ def get_products_dataframe(website_name,product_json):
 def get_json_dump(valid_url,page_count):
     try:
         valid_url =  valid_url[:-1]
-        valid_url  = valid_url + "/products.json?limit=250&page="+ str(page_count)
+        valid_url  = valid_url + str(page_count)
         print("Reading ===> " + valid_url)
         product_json = requests.get(valid_url).json()
         return product_json
+    
     except Exception as e:
         print("while loop ",e)
         
@@ -422,5 +430,8 @@ if __name__ == "__main__":
   print(downloading_thread)
   
   print("---Script total time ==> : {0:.3g} seconds ---".format (time.time() - start_time))
+ 
+ 
+  #start_downloading("","www.boutiquetozzi.com",1)
 
 #------------------------------------- 
