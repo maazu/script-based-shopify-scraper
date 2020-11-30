@@ -465,5 +465,8 @@ if __name__ == "__main__":
   shutil.make_archive(download_dir, "zip", download_dir)
   
   print("---Script total time ==> : {0:.3g} seconds ---".format (time.time() - start_time))
+ 
+ 
+  #start_downloading("","www.boutiquetozzi.com",1)
 
 #------------------------------------- 
