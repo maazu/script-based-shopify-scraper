@@ -1,4 +1,4 @@
-!pip install aiohttp
+
 # modified fetch function with semaphore
 import random
 import asyncio
