@@ -1,5 +1,3 @@
-# modified fetch function with semaphore
-
 import asyncio
 from aiohttp import ClientSession
 import pandas as pd
@@ -74,7 +72,7 @@ def listToString(s):
 
 def add_summary_to_df(sum_dictionary,file_name,type_of_file):
   
-    df = pd.DataFrame(list(sum_dictionary.items()),columns = ['hostname',"store",'server respone']) 
+    df = pd.DataFrame(list(sum_dictionary.items()),columns = ['hostname','server respone']) 
     df['server respone'] = df['server respone'].apply(listToString)
     df = df.join(df['server respone'].str.split(',', expand=True).add_prefix('Response '))
     df = df.drop('server respone', 1)
@@ -97,9 +95,6 @@ async def update_dictionary(hostname,store_url,response_url,status,contentType,d
         print(c[1]+ "{} {}:{} with delay {} {}".format(status, contentType, date, response_url, delay,status))  
    
 
-
-
-
 async def fetch(hostname,store, session):
     try:
         store_url = store[8:-31]
@@ -119,9 +114,7 @@ async def fetch(hostname,store, session):
             print("{} NOT FOUND {}".format(status, store))
             print(e)
             pass 
-            
-            # yield control for 1 second
-           
+                       
     except Exception as e:
         error_dict[hostname]  = [store,store_url,"NOT FOUND","NOT FOUND"]
         status = "000"
@@ -156,9 +149,10 @@ async def run(host_name_list,store_list):
 def main(host_name_list,store_list):
     
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(run(host_name_list,store_list))
-    
+    future = asyncio.ensure_future(run(host_name_list,store_list)) 
     loop.run_until_complete(future)
+
+
       
 if __name__ == "__main__": 
     download_directory  = os.getcwd() + "/generated-files/"
@@ -175,17 +169,14 @@ if __name__ == "__main__":
         host_name_list = list(df['hostname'])                     
         store_list = list(df['store'].apply(create_shopify_api_endpoint_for_store))
     
-    print("Total Urls =========> " +str( len(store_list)))
+    print("Total Urls =========> " +str( len(set(host_name_list ))))
     
     
     main(host_name_list,store_list)
     
-
-    print("---Creating Validation Summary ---")
    
-    
+    print("---Creating Validation Summary ---")
     add_summary_to_df(sucess_dict,summary_dir+"/valid-endpoints.csv","valid")    
     add_summary_to_df(error_dict,summary_dir+ "/error-urls.csv","error")
-    
     print("--- Validation Summary Folder created  ---")
     print("---Script total time ==> : {0:.3g} seconds ---".format (time.time() - start_time))
