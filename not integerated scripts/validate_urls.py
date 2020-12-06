@@ -5,9 +5,7 @@ import time
 import json
 import os
 import glob
-def test(fvalidation_dataset_path):
-    print(fvalidation_dataset_path)
-    
+
 start_time = time.time()
 sucess_dict = {}
 error_dict = {}
@@ -24,18 +22,36 @@ def generated_time():
     return geneerated_time
 
 
-
+def select_csv():
+     confirm_dataset = input("Enter 'y' to confirm dataset upload: ")
+     if (confirm_dataset == "y"):
+        try:
+          directory  = os.getcwd() + "/csv-script/"
+          uploaded_csv = glob.glob(directory + "*.csv")
+          if (len(uploaded_csv) > 0):
+            count = 0
+            print("Uploaded files \n")
+            print("index \t\tFound_csv_files\n")
+            for fcsv in uploaded_csv:
+              print(str(count) +"\t\t"+ fcsv)
+              count = count + 1
+            print("\nCheck the uploaded file in the left bar to make sure it's uploaded .......")
+            index_selected = input("Enter the index of the uploaded file: ==>  ")
+            index_selected = int(index_selected)
+            return uploaded_csv[index_selected]
+        except Exception as e:
+          print(e)
+     else:
+        print("please upload the csv dataset")
 
 def create_shopify_api_endpoint_for_store(url):
     url = "https://" + url + "/products.json?limit=250&page=1"
     return url
 
 
-def read_website_df_single(dataset_path):
-    csv_file_name = dataset_path
-
+def read_website_df_single():
+    csv_file_name = select_csv()
     df = pd.read_csv(csv_file_name).drop_duplicates(keep='first').reset_index()
-
     return df
 
 
@@ -152,7 +168,7 @@ if __name__ == "__main__":
     else:
         host_name_list = list(df['hostname'])
         store_list = list(df['store'].apply(create_shopify_api_endpoint_for_store))
-    print("Store list", store_list)
+
     print("Total Urls =========> " +str( len(set(host_name_list ))))
 
 
