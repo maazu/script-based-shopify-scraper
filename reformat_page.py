@@ -37,11 +37,8 @@ def data_set_upload(self,page_name):
     
     page_heading = Label(rightframe, text="Reformat Data", font=(standard_font_name, 16),bg ='black',fg = 'WHITE')
     page_heading.place(x=35, y=20)
+ 
     page_note = "Select the dataset you would like to reformat."
-    
-    
-    
-    
     page_note = Label(rightframe, text = page_note, font = (standard_font_name, 11),bg ='black',fg = 'WHITE')
     page_note.place(x=35, y=60)
     
@@ -82,15 +79,9 @@ def data_set_upload(self,page_name):
     column_url_label_two = Label(rightframe, text="Store url column", font=(standard_font_name, 10),bg ='black',fg = 'WHITE') 
     
    
-    
-    
-    global column_one_option_menu, column_two_option_menu
    
     
-    
    
-
-    
 def field_validation():
     if(processing_type_text_box.get() == ''):
         mbox.showerror("Missing Dataset Name","Dataset Name Missing")
@@ -102,10 +93,6 @@ def field_validation():
 
 
 
-
-
-
-# Open a video file
 def open_dialog_box_csv(self):
        
         if(processing_type_text_box.get() == ''):
@@ -173,15 +160,11 @@ def save_reformatted_data(df):
     if ( save_data_set_path != ''):
         save_thread = ThreadWithReturnValue(target = save_reformatted_df, args = (df,save_data_set_path))
         save_thread.start()
-        confirmation = save_thread.join() 
-       
+        confirmation = save_thread.join()   
         mbox.showinfo("Information", confirmation)
         rightframe.pack()
    
- 
- 
- 
-    
+   
 
 def start_reformatting(self,loaded_dataset_path,main_urls,store_urls):
    
@@ -191,8 +174,7 @@ def start_reformatting(self,loaded_dataset_path,main_urls,store_urls):
         right_progress_bar.place(x = 35, y =400)
         
         thread = ThreadWithReturnValue(target = start_reformating_script, args = (loaded_dataset_path,main_urls,store_urls,rightframe))
-         
-                
+      
         right_progress_bar['value'] = 20
         rightframe.update_idletasks() 
         thread.start()
@@ -214,21 +196,11 @@ def start_reformatting(self,loaded_dataset_path,main_urls,store_urls):
         right_progress_bar['value'] = 80
         rightframe.update_idletasks() 
         time.sleep(1) 
+        
         df = thread.join()
         right_progress_bar['value'] = 100
         right_progress_bar.pack_forget()
         
-        
-       
-         
-        
+
         save_step_button = Button(rightframe, text="Finish & Save CSV", width = 15,command = lambda:save_reformatted_data(df) )
-        
         save_step_button.place(x = 610, y = 500)
-        
-            
-            
-        
-        
-        
-       

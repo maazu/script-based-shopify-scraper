@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 """
 Created on Mon Dec  7 18:19:06 2020
 
@@ -36,52 +35,16 @@ class GUI:
         project_logo = Label(leftframe, text=" Shopify \n Data Extractor", font=("Helvetica", 16),bg='#001f42',fg = 'WHITE')
         project_logo.place(x=35, y=20)
 
-        #Footer Note
-        #footer_note = Label(leftframe, text=" Sc Project Created  by \n Muhammad Maaz\n \n", font=("Helvetica", 8),bg='#001f42',fg = 'WHITE')
-        #footer_note.place(x=0, y=600)
 
-
-        #Server Button
-        #Server_button = Button(leftframe, text="Server", fg="black", width = 20, command= lambda:server_page(self))  
-        #Server_button.place(x=25, y=150)
 
         #reformat Button
         reformat_button = Button(leftframe, text="Reformat", fg="black", width = 20,command = lambda:data_set_upload(self,"reformat-data"))  
         reformat_button.place(x=25, y=150)
 
-        #Add Bus Button
-        #bus_route_button = Button(leftframe, text="New Bus Route", fg="black", width = 20,command = lambda:add_new_route_page(self))  
-        #bus_route_button.place(x=25, y=250)
-        
-        #Predict ROI Button
-        #predict_button = Button(leftframe, text="Predict ROI", fg="black", width = 20, command = lambda:predict_roi_panel(self))  
-        #predict_button.place(x=25, y=300)
-
-        
-        #Help Button
-        #immage_operation_button = Button(leftframe, text="Features", fg="black", width = 20, command = lambda:show_Img_Operation(self))  
-        #immage_operation_button.place(x=25, y=350)
-
-
-        
-        #Map Button
-        #Map_button = Button(leftframe, text="Map View", fg="black", width = 20,command=self.map_page)  
-       # Map_button.place(x=25, y=400)
-
 
         quit_button = Button(leftframe, text="Quit", fg="black", width = 20,command=self.quit_page)  
         quit_button.place(x=25, y=450)
 
-
-
-          
-    def map_page(self):
-        self.root.update() 
-        rightframe = Frame(self.root,bg='black')  
-        rightframe.pack(side = RIGHT)  
-        rightframe.place(height=800, width=800, x=200, y=0)
-        project_logo = Label(rightframe, text="Map View", font=("Helvetica", 16),bg ='black',fg = 'WHITE')
-        project_logo.place(x=35, y=20)
 
 
         
@@ -105,9 +68,14 @@ class GUI:
         self.root.mainloop()
 
 
+
+
 def quit_program():
     print("Closing program")
-    exit(0)  
+    exit(0) 
+    
+    
+    
          
 if __name__ == "__main__":  
     appstart = GUI()
