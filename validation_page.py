@@ -27,7 +27,7 @@ def read_csv_file(csv_file_path):
     return df_columns
 
 
-def reformat_dataset(self,page_name):
+def validate_dataset(self,page_name):
     
     self.root.update()
     global rightframe
@@ -35,10 +35,10 @@ def reformat_dataset(self,page_name):
     rightframe.pack(side = RIGHT)  
     rightframe.place(height=800, width=800, x=200, y=0)
     
-    page_heading = Label(rightframe, text="Reformat Data", font=(standard_font_name, 16),bg ='black',fg = 'WHITE')
+    page_heading = Label(rightframe, text="Validate Shopify Store Urls", font=(standard_font_name, 16),bg ='black',fg = 'WHITE')
     page_heading.place(x=35, y=20)
  
-    page_note = "Select the dataset you would like to reformat."
+    page_note = "Select the dataset you would like to validate."
     page_note = Label(rightframe, text = page_note, font = (standard_font_name, 11),bg ='black',fg = 'WHITE')
     page_note.place(x=35, y=60)
     

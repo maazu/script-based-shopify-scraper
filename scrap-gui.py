@@ -7,7 +7,7 @@ Created on Mon Dec  7 18:19:06 2020
 """
 from tkinter import *
 from reformat_page import *
-
+from validation_page import *
 
 class GUI:
     def __init__(self):
@@ -38,8 +38,11 @@ class GUI:
 
 
         #reformat Button
-        reformat_button = Button(leftframe, text="Reformat", fg="black", width = 20,command = lambda:data_set_upload(self,"reformat-data"))  
+        reformat_button = Button(leftframe, text="Reformat", fg="black", width = 20,command = lambda:reformat_dataset(self,"reformat-data"))  
         reformat_button.place(x=25, y=150)
+        
+        validation_button = Button(leftframe, text="Validate", fg="black", width = 20,command = lambda:validate_dataset(self,"validate-data"))  
+        validation_button.place(x=25, y=200)
 
 
         quit_button = Button(leftframe, text="Quit", fg="black", width = 20,command=self.quit_page)  
