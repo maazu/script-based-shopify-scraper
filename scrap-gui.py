@@ -8,6 +8,17 @@ Created on Mon Dec  7 18:19:06 2020
 from tkinter import *
 from reformat_page import *
 from validation_page import *
+from PIL import Image, ImageTk
+import cv2
+rightframe_background_color = "#EDE9D8"  #light grey
+
+
+standard_font_name = "Motiva Sans"
+rightframe_background_color = "#EDE9D8"
+foreground_color = "#173630"
+font_weight ="bold"
+button_background_color = "#108043"
+text_font_size = 12
 
 class GUI:
     def __init__(self):
@@ -21,27 +32,31 @@ class GUI:
         self.root.update() 
         #left frame  - MENU SIDE
 
-        leftframe = Frame(self.root,bg ='#001f42')  
+        leftframe = Frame(self.root,bg ='#F4F6F8')  
         leftframe.pack(side = LEFT)  
         leftframe.place(height=800, width=280, x=0, y=0)
 
         #right frame - DISPAY SIDE
-        rightframe = Frame(self.root,bg='#003e85')  
+        rightframe = Frame(self.root,bg= rightframe_background_color)  
         rightframe.pack(side = RIGHT)  
         rightframe.place(height=800, width=800, x=200, y=0)
 
         
         #Project Logo
-        project_logo = Label(leftframe, text=" Shopify \n Data Extractor", font=("Helvetica", 16),bg='#001f42',fg = 'WHITE')
-        project_logo.place(x=35, y=20)
-
-
-
+        load = Image.open("imgs/logo.png")
+        render = ImageTk.PhotoImage(load) 
+        img = Label(leftframe, image=render)
+        img.image = render
+        img.place(x=35, y=20)   
+        
+        project_logo = Label(leftframe, text="data extractor", font=("Motiva Sans",14, "bold","italic"), bg='#F4F6F8',fg = 'black')
+        project_logo.place(x=53, y=80)
+        
         #reformat Button
-        reformat_button = Button(leftframe, text="Reformat", fg="black", width = 20,command = lambda:reformat_dataset(self,"reformat-data"))  
+        reformat_button = Button(leftframe, text="Reformat", bg="#108043" ,fg="white", width = 20,command = lambda:reformat_dataset(self,"reformat-data"))  
         reformat_button.place(x=25, y=150)
         
-        validation_button = Button(leftframe, text="Validate", fg="black", width = 20,command = lambda:validate_dataset(self,"validate-data"))  
+        validation_button = Button(leftframe, text="Validate",bg="#108043" , fg="white", width = 20,command = lambda:validate_dataset(self,"validate-data"))  
         validation_button.place(x=25, y=200)
 
 
@@ -53,14 +68,14 @@ class GUI:
         
     def quit_page(self):
         self.root.update() 
-        rightframe = Frame(self.root,bg='black')  
+        rightframe = Frame(self.root,bg = rightframe_background_color)  
         rightframe.pack(side = RIGHT)  
         rightframe.place(height=800, width=800, x=200, y=0)
-        quit_heading = Label(rightframe, text="Quit", font=("Helvetica", 16),bg ='black',fg = 'WHITE')
+        quit_heading = Label(rightframe, text="Quit", font=(standard_font_name, text_font_size,font_weight),bg = rightframe_background_color,fg = foreground_color)
         quit_heading.place(x=35, y=20)
 
         quit_note = "Pressing Yes button will shut the entirely."
-        quit_heading = Label(rightframe, text=quit_note, font=("Helvetica", 11),bg ='black',fg = 'WHITE')
+        quit_heading = Label(rightframe, text=quit_note, font=(standard_font_name, text_font_size,font_weight),bg = rightframe_background_color,fg = foreground_color)
         quit_heading.place(x=35, y=50)
         quit_button = Button(rightframe, text="Yes", fg="black", width = 20,command=lambda:quit_program())  
         quit_button.place(x=35, y=100)
