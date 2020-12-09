@@ -6,6 +6,11 @@ Created on Mon Dec  7 18:19:06 2020
 @author: Maaz
 """
 import os
+import sys
+
+if sys.path[0] != '':
+    sys.path.insert(0, '')
+    
 from tkinter import *
 from reformat_page import *
 from validation_page import *
