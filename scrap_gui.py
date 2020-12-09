@@ -5,6 +5,7 @@ Created on Mon Dec  7 18:19:06 2020
 
 @author: Maaz
 """
+import os
 from tkinter import *
 from reformat_page import *
 from validation_page import *
@@ -42,7 +43,7 @@ class GUI:
 
         
         #Project Logo
-        load = Image.open("imgs/logo.png")
+        load = Image.open( os.getcwd() + "/imgs/logo.png")
         render = ImageTk.PhotoImage(load) 
         img = Label(leftframe, image=render)
         img.image = render
