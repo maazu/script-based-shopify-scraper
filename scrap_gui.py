@@ -9,7 +9,6 @@ from tkinter import *
 from reformat_page import *
 from validation_page import *
 from PIL import Image, ImageTk
-import cv2
 rightframe_background_color = "#EDE9D8"  #light grey
 
 
