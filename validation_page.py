@@ -16,6 +16,8 @@ import pandas as pd
 from reformat_store_urls import *
 from threading import Thread
 from tkinter import messagebox as mbox
+from validate_urls import *
+from threading import Thread
 
 standard_font_name = "Motiva Sans"
 rightframe_background_color = "#EDE9D8"
@@ -23,6 +25,7 @@ foreground_color = "#173630"
 font_weight ="bold"
 button_background_color = "#108043"
 text_font_size = 12
+
 def read_csv_file(csv_file_path):
     df =  pd.read_csv(csv_file_path, index_col=False)
     df_columns =tuple(df.columns)
@@ -130,7 +133,7 @@ def open_dialog_box_csv(self):
                        
                       
                    
-                        reformat_step_button = Button(rightframe, text="Reformat Data", bg= button_background_color,fg="WHITE", width = 15,command = lambda:start_reformatting(self,loaded_dataset_path,column_one_option_menu.get(), column_two_option_menu.get()) )
+                        reformat_step_button = Button(rightframe, text="Start Validation", bg= button_background_color,fg="WHITE", width = 15,command = lambda:start_validation(self,loaded_dataset_path,column_one_option_menu.get(), column_two_option_menu.get()) )
     
                         reformat_step_button.place(x = 610, y = 500)
                         reformat_step_button.pack_forget()
@@ -146,7 +149,7 @@ class ThreadWithReturnValue(Thread):
         Thread.__init__(self, group, target, name, args, kwargs)
         self._return = None
     def run(self):
-        print(type(self._target))
+        #print(type(self._target))
         if self._target is not None:
             self._return = self._target(*self._args,
                                                 **self._kwargs)
@@ -167,41 +170,11 @@ def save_reformatted_data(df):
    
    
 
-def start_reformatting(self,loaded_dataset_path,main_urls,store_urls):
+def start_validation(self,loaded_dataset_path,main_urls,store_urls):
    
-    if(field_validation()):
+    if (field_validation()):
         
-        right_progress_bar = ttk.Progressbar(rightframe, orient = HORIZONTAL, length = 700, mode = 'determinate') 
-        right_progress_bar.place(x = 35, y =400)
+        validation_process_gui_update(self,loaded_dataset_path,main_urls,store_urls)
         
-        thread = ThreadWithReturnValue(target = start_reformating_script, args = (loaded_dataset_path,main_urls,store_urls,rightframe))
-      
-        right_progress_bar['value'] = 20
-        rightframe.update_idletasks() 
-        thread.start()
-          
-        time.sleep(1) 
-        
-        right_progress_bar['value'] = 40
-        rightframe.update_idletasks() 
-        time.sleep(1) 
-          
-        right_progress_bar['value'] = 50
-        rightframe.update_idletasks() 
-        time.sleep(1) 
-        
-        right_progress_bar['value'] = 60
-        rightframe.update_idletasks() 
-        time.sleep(1) 
-        
-        right_progress_bar['value'] = 80
-        rightframe.update_idletasks() 
-        time.sleep(1) 
-        
-        df = thread.join()
-        right_progress_bar['value'] = 100
-        right_progress_bar.pack_forget()
-        
-
-        save_step_button = Button(rightframe, text="Finish & Save CSV",  bg= button_background_color,fg="WHITE", width = 15,command = lambda:save_reformatted_data(df) )
-        save_step_button.place(x = 610, y = 500)
+        #save_step_button = Button(rightframe, text="Finish & Save CSV",  bg= button_background_color,fg="WHITE", width = 15,command = lambda:save_reformatted_data(df) )
+        #save_step_button.place(x = 610, y = 500)

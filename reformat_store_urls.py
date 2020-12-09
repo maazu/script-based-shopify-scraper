@@ -73,8 +73,9 @@ def start_reformating_script(data_set_path,main_urls,store_urls,rightframe,):
     
     
 def save_reformatted_df(df,save_data_set_path):
-     df.to_csv(save_data_set_path+"/reformatted-csv-"+generated_time()+".csv",index = False, encoding = "utf-8-sig")
-     confrimation = "Reformat csv file has been sucessfully"
+   
+     df.to_csv(save_data_set_path+"/reformatted-csv-"+generated_time()+".csv",index=False, line_terminator='\n', encoding ="utf-8-sig")
+     confrimation = "Reformat csv file has been saved sucessfully"
      return confrimation
      
 

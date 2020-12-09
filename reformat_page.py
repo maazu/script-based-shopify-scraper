@@ -38,10 +38,10 @@ def reformat_dataset(self,page_name):
     rightframe.pack(side = RIGHT)  
     rightframe.place(height=800, width=800, x=200, y=0)
     
-    page_heading = Label(rightframe, text="Refromat Dataset", font=(standard_font_name, 16,font_weight),bg =rightframe_background_color,fg = foreground_color)
+    page_heading = Label(rightframe, text="Reformat Dataset", font=(standard_font_name, 16,font_weight),bg =rightframe_background_color,fg = foreground_color)
     page_heading.place(x=35, y=20)
  
-    page_note = "Select the dataset you would like to validate."
+    page_note = "Select the dataset you would like to reformat."
     page_note = Label(rightframe, text = page_note, font = (standard_font_name, text_font_size,font_weight),bg =rightframe_background_color,fg = foreground_color)
     page_note.place(x=35, y=60)
     
@@ -146,7 +146,7 @@ class ThreadWithReturnValue(Thread):
         Thread.__init__(self, group, target, name, args, kwargs)
         self._return = None
     def run(self):
-        print(type(self._target))
+        #print(type(self._target))
         if self._target is not None:
             self._return = self._target(*self._args,
                                                 **self._kwargs)

@@ -5,19 +5,6 @@ Created on Mon Dec  7 18:19:06 2020
 
 @author: Maaz
 """
-
-import time 
-import os
-import tkinter
-from tkinter import *
-from tkinter import filedialog
-from tkinter.filedialog import askopenfilename
-from tkinter import messagebox as mbox
-from tkinter import ttk 
-import pandas as pd
-from reformat_store_urls import *
-from threading import Thread
-from tkinter import messagebox as mbox
 from tkinter import *
 from reformat_page import *
 from validation_page import *
@@ -67,14 +54,20 @@ class GUI:
         
         #reformat Button
         reformat_button = Button(leftframe, text="Reformat", bg="#108043" ,fg="white", width = 20,command = lambda:reformat_dataset(self,"reformat-data"))  
-        reformat_button.place(x=25, y=150)
+        reformat_button.place(x=25, y=200)
         
         validation_button = Button(leftframe, text="Validate",bg="#108043" , fg="white", width = 20,command = lambda:validate_dataset(self,"validate-data"))  
-        validation_button.place(x=25, y=200)
+        validation_button.place(x=25, y=250)
 
-
-        quit_button = Button(leftframe, text="Quit", fg="black", width = 20,command=self.quit_page)  
-        quit_button.place(x=25, y=450)
+        count_button = Button(leftframe, text="Counting",bg="#108043" , fg="white", width = 20,command = lambda:validate_dataset(self,"validate-data"))  
+        count_button.place(x=25, y=300)
+        
+        download_button = Button(leftframe, text="Download",bg="#108043" , fg="white", width = 20,command = lambda:validate_dataset(self,"validate-data"))  
+        download_button.place(x=25, y=350)
+        
+        
+        quit_button = Button(leftframe, text="Quit", bg="#108043" , fg="white", width = 20,command=self.quit_page)  
+        quit_button.place(x=25, y=400)
 
 
 
