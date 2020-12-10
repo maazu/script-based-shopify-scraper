@@ -23,10 +23,12 @@ foreground_color = "#173630"
 font_weight ="bold"
 button_background_color = "#108043"
 text_font_size = 12
+
+
+
 def read_csv_file(csv_file_path):
-    df =  pd.read_csv(csv_file_path, index_col=False)
+    df = pd.read_csv(dataset_path).drop_duplicates(keep='first').reset_index()
     df_columns =tuple(df.columns)
-   
     return df_columns
 
 
@@ -66,7 +68,7 @@ def reformat_dataset(self,page_name):
     processing_dataset_location_text_box.place(x = 135, y = 150,width = 590)  
  
     
-    Browse_csv_button = Button(rightframe, text="Load dataset", bg= button_background_color,fg="WHITE", width = 15,command = lambda:open_dialog_box_csv(self) )
+    Browse_csv_button = Button(rightframe, text="Load dataset", width = 15,command = lambda:open_dialog_box_csv(self) )
     Browse_csv_button.place(x = 610, y = 200)
  
     
@@ -130,7 +132,7 @@ def open_dialog_box_csv(self):
                        
                       
                    
-                        reformat_step_button = Button(rightframe, text="Reformat Data", bg= button_background_color,fg="WHITE", width = 15,command = lambda:start_reformatting(self,loaded_dataset_path,column_one_option_menu.get(), column_two_option_menu.get()) )
+                        reformat_step_button = Button(rightframe, text="Reformat Data", width = 15,command = lambda:start_reformatting(self,loaded_dataset_path,column_one_option_menu.get(), column_two_option_menu.get()) )
     
                         reformat_step_button.place(x = 610, y = 500)
                         reformat_step_button.pack_forget()
@@ -203,5 +205,5 @@ def start_reformatting(self,loaded_dataset_path,main_urls,store_urls):
         right_progress_bar.pack_forget()
         
 
-        save_step_button = Button(rightframe, text="Finish & Save CSV",  bg= button_background_color,fg="WHITE", width = 15,command = lambda:save_reformatted_data(df) )
+        save_step_button = Button(rightframe, text="Finish & Save CSV", width = 15,command = lambda:save_reformatted_data(df) )
         save_step_button.place(x = 610, y = 500)

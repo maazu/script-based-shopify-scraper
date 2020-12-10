@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Mon Dec  7 18:20:51 2020
@@ -13,11 +14,9 @@ from tkinter.filedialog import askopenfilename
 from tkinter import messagebox as mbox
 from tkinter import ttk 
 import pandas as pd
-from reformat_store_urls import *
+from product_count import *
 from threading import Thread
 from tkinter import messagebox as mbox
-from validate_urls import *
-from threading import Thread
 
 standard_font_name = "Motiva Sans"
 rightframe_background_color = "#EDE9D8"
@@ -25,7 +24,6 @@ foreground_color = "#173630"
 font_weight ="bold"
 button_background_color = "#108043"
 text_font_size = 12
-
 def read_csv_file(csv_file_path):
     df =  pd.read_csv(csv_file_path, index_col=False)
     df_columns =tuple(df.columns)
@@ -33,7 +31,7 @@ def read_csv_file(csv_file_path):
     return df_columns
 
 
-def validate_dataset(self,page_name):
+def pre_sort_dataset(self,page_name):
     
     self.root.update()
     global rightframe
@@ -41,10 +39,10 @@ def validate_dataset(self,page_name):
     rightframe.pack(side = RIGHT)  
     rightframe.place(height=800, width=800, x=200, y=0)
     
-    page_heading = Label(rightframe, text="Validate Shopify Store", font=(standard_font_name, 16,font_weight),bg =rightframe_background_color,fg = foreground_color)
+    page_heading = Label(rightframe, text="Sort Dataset", font=(standard_font_name, 16,font_weight),bg =rightframe_background_color,fg = foreground_color)
     page_heading.place(x=35, y=20)
  
-    page_note = "Select the dataset you would like to validate."
+    page_note = "Select the dataset you would like to sort according to their total store products range."
     page_note = Label(rightframe, text = page_note, font = (standard_font_name, text_font_size,font_weight),bg =rightframe_background_color,fg = foreground_color)
     page_note.place(x=35, y=60)
     
@@ -133,10 +131,10 @@ def open_dialog_box_csv(self):
                        
                       
                    
-                        reformat_step_button = Button(rightframe, text="Start Validation", width = 15,command = lambda:start_validation(self,loaded_dataset_path,column_one_option_menu.get(), column_two_option_menu.get()) )
+                        sort_step_button = Button(rightframe, text="Sort Dataset", width = 15,command = lambda:start_reformatting(self,loaded_dataset_path,column_one_option_menu.get(), column_two_option_menu.get()) )
     
-                        reformat_step_button.place(x = 610, y = 500)
-                        reformat_step_button.pack_forget()
+                        sort_step_button.place(x = 610, y = 500)
+                        sort_step_button.pack_forget()
                        
                        
                         
@@ -170,11 +168,11 @@ def save_reformatted_data(df):
    
    
 
-def start_validation(self,loaded_dataset_path,main_urls,store_urls):
+def start_reformatting(self,loaded_dataset_path,main_urls,store_urls):
    
-    if (field_validation()):
+    if(field_validation()):
         
-        validation_process_gui_update(self,loaded_dataset_path,main_urls,store_urls)
+        products_counting_gui_update(self,loaded_dataset_path,main_urls,store_urls)
         
-        #save_step_button = Button(rightframe, text="Finish & Save CSV",  bg= button_background_color,fg="WHITE", width = 15,command = lambda:save_reformatted_data(df) )
-        #save_step_button.place(x = 610, y = 500)
+
+      

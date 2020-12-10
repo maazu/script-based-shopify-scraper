@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Dec  8 23:25:13 2020
+
 @author: Maaz
 """
 import os
@@ -12,7 +13,6 @@ from datetime import datetime
 import time
 import tkinter
 from tkinter import ttk 
-from validate_urls import *
 from threading import Thread
 from tkinter import *
 from tkinter import filedialog
@@ -20,12 +20,14 @@ from tkinter import messagebox as mbox
 from tkinter.filedialog import askopenfilename
 import threading
 
+startTime = datetime.now()
+
 counter = 66600
 running = False
 valid_url = {}
 invalid_url = {}
 gui_text_area_updates = []
-active_valid_thread = []
+
 
 standard_font_name = "Motiva Sans"
 rightframe_background_color = "#EDE9D8"
@@ -55,8 +57,7 @@ class ThreadWithReturnValue(Thread):
 
 
 
-def counter_label(label,startTime):  
-   
+def counter_label(label):  
     def count():  
         if running:  
             global counter  
@@ -84,10 +85,10 @@ def counter_label(label,startTime):
     # Triggering the start of the counter.  
     count()       
     
-def Start(label,startTime):  
+def Start(label):  
     global running  
     running=True
-    counter_label(label,startTime)  
+    counter_label(label)  
 
     
 def Stop():  
@@ -98,16 +99,9 @@ def Stop():
 
 
 
-def kill_previous_thread():
-    if(len(active_valid_thread) > 0):
-        active_valid_thread[0].shutdown = True
-       
-        active_valid_thread.clear()
-              
-
 def get_store_data(dataset_path,host_col_name,store_col_name):
     
-  df = pd.read_csv(dataset_path).drop_duplicates(keep='first').reset_index()
+  df = pd.read_csv(dataset_path,index_col=False).dropna()
   total_urls = len(list(df[store_col_name]))
   host_name_list = list(df[host_col_name])
   store_list = list(df[store_col_name])
@@ -117,26 +111,20 @@ def get_store_data(dataset_path,host_col_name,store_col_name):
 
 
 
-def validation_process_gui_update(self,loaded_dataset_path,main_urls,store_urls):
+def downlad_data_from_gui_update(self,dowload_file_path,loaded_dataset_path,column_one_option_menu, column_two_option_menu):
+   
     
-    
-        
     self.root.update()
     global rightframe
     rightframe = Frame(self.root,bg =  rightframe_background_color)  
     rightframe.pack(side = RIGHT)  
     rightframe.place(height=800, width=800, x=200, y=0)
-    startTime = datetime.now()
-    kill_previous_thread()
-   
-    valid_url.clear()
-    invalid_url.clear()
-  
+    
     global elapsed_time
     elapsed_time = Label(rightframe, text="", font=(standard_font_name, 20,font_weight),bg =rightframe_background_color,fg = foreground_color,borderwidth=2, relief="solid")  
     elapsed_time.place(x = 180, y = 650)
     
-    Start(elapsed_time,startTime)
+    Start(elapsed_time)
   
     global gui_text_area
     gui_text_area = tkinter.Text(rightframe) 
@@ -144,7 +132,7 @@ def validation_process_gui_update(self,loaded_dataset_path,main_urls,store_urls)
     
    
     global get_data_details
-    get_data_details = get_store_data(loaded_dataset_path,main_urls,store_urls)
+    get_data_details = get_store_data(loaded_dataset_path,column_one_option_menu,column_two_option_menu)
    
     global detected_total_urls
     detected_total_urls  = str(get_data_details[0])
@@ -186,10 +174,8 @@ def validation_process_gui_update(self,loaded_dataset_path,main_urls,store_urls)
     
 
     global validation_thread
-    validation_thread = threading.Thread(target=start_validation_process, args=(loaded_dataset_path,main_urls,store_urls,), daemon=True) 
-    active_valid_thread.append(validation_thread)
-    validation_thread.start()
-    
+    downloading_thread = threading.Thread(target=start_validation_process, args=(dowload_file_path,loaded_dataset_path,column_one_option_menu,column_two_option_menu,), daemon=True) 
+    downloading_thread.start()
     
     
     
@@ -251,7 +237,7 @@ async def text_area_statement(validity_status,host,store,count,contentType):
     if (detected_total_urls == total ):
         program_status.configure(text="\tStatus: Finished \t\t") 
         Stop()
-        validation_thread.exit()
+        downloading_thread.join()
  
     await asyncio.sleep(0.5)
 
@@ -346,7 +332,7 @@ async def run(host_name_list,store_list):
 
 
 
-def start_validation_process(dataset_path,host_col_name,store_col_name):
+def start_validation_process(dowload_file_path,dataset_path,host_col_name,store_col_name):
   
   
    
@@ -356,16 +342,9 @@ def start_validation_process(dataset_path,host_col_name,store_col_name):
    
    
    asyncio.set_event_loop(asyncio.SelectorEventLoop())
-   future = asyncio.ensure_future(run(host_name_list,store_name_list)) 
+   future = asyncio.ensure_future(run(dowload_file_path,host_name_list,store_name_list)) 
 
    asyncio.get_event_loop().run_until_complete(future)
-
-   
-   
-   #add_valid_urls_to_df(valid_url)
-   #add_invalid_to_df(invalid_url)
-
-
 
 
 
