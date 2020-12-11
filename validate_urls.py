@@ -218,7 +218,7 @@ def create_shopify_api_endpoint_for_store_with_http(url):
                         
 def save_df_to_selected_path(user_selected_path):
    
-    valid_df = pd.DataFrame(list(valid_url.items()),columns = ['Valid store','host']) 
+    valid_df = pd.DataFrame(list(valid_url.items()),columns = ['valid store','hostname']) 
     
     valid_df.to_csv(user_selected_path +"/"+ "valid-urls-"+ generated_time() +".csv",index=False, line_terminator='\n', encoding ="utf-8-sig")
     
@@ -347,26 +347,25 @@ async def run(host_name_list,store_list):
 
 
 def start_validation_process(dataset_path,host_col_name,store_col_name):
+    from functools import wraps
+
+    from asyncio.proactor_events import _ProactorBasePipeTransport
+    
+    def silence_event_loop_closed(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            try:
+                return func(self, *args, **kwargs)
+            except RuntimeError as e:
+                if str(e) != 'Event loop is closed':
+                    raise
+        return wrapper
+    
+    _ProactorBasePipeTransport.__del__ = silence_event_loop_closed(_ProactorBasePipeTransport.__del__)
+  
+    asyncio.run(run(host_name_list,store_name_list))
   
   
-   
-   asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-   loop = asyncio.new_event_loop() 
-   asyncio.set_event_loop(loop)
-   
-   
-   asyncio.set_event_loop(asyncio.SelectorEventLoop())
-   future = asyncio.ensure_future(run(host_name_list,store_name_list)) 
-
-   asyncio.get_event_loop().run_until_complete(future)
-
-   
-   
-   #add_valid_urls_to_df(valid_url)
-   #add_invalid_to_df(invalid_url)
-
-
-
 
 
 if __name__ == "__main__":

@@ -24,6 +24,8 @@ foreground_color = "#173630"
 font_weight ="bold"
 button_background_color = "#108043"
 text_font_size = 12
+
+
 def read_csv_file(csv_file_path):
     df =  pd.read_csv(csv_file_path, index_col=False)
     df_columns =tuple(df.columns)
@@ -48,15 +50,7 @@ def pre_sort_dataset(self,page_name):
     
 
 
-    processing_type_label_name = Label(rightframe, text="Name", font=(standard_font_name, text_font_size,font_weight),bg =rightframe_background_color,fg = foreground_color)
-    processing_type_label_name.place(x=35, y = 100)
-    
-    
-    global processing_type_text_box #name textbox
-    processing_type_text_box = Entry(rightframe)
-    processing_type_text_box.place(x = 135, y = 100,width = 590)  
-  
-    
+
    
     processing_dataset_location_label = Label(rightframe, text="Path", font=(standard_font_name, text_font_size,font_weight),bg =rightframe_background_color,fg = foreground_color)
     processing_dataset_location_label.place(x=35, y = 150)
@@ -87,54 +81,40 @@ def pre_sort_dataset(self,page_name):
     
    
 def field_validation():
-    if(processing_type_text_box.get() == ''):
-        mbox.showerror("Missing Dataset Name","Dataset Name Missing")
+    if(processing_dataset_location_text_box.get() == ''):
+        mbox.showerror("Missing File Path","Sorting Dataset file path is missing")
         return False
-    elif(processing_dataset_location_text_box.get() == ''):
-        mbox.showerror("Missing File Path","Dataset file path is missing")
-        return False
-    return True
+    else:
+        return True
 
 
 
 def open_dialog_box_csv(self):
-       
-        if(processing_type_text_box.get() == ''):
-             mbox.showerror("Missing Dataset Name","Dataset Name Missing")
+    full_file_path = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a file", filetypes=[("CSV (Comma separated file)", "*.csv")]) # select a video file from the hard drive
+    if ( full_file_path != ''):
+        processing_dataset_location_text_box.config(state=NORMAL)
+        processing_dataset_location_text_box.delete(0,END)
+        processing_dataset_location_text_box.insert(0,full_file_path)
+        processing_dataset_location_text_box.config(state=DISABLED)
         
-        else:   
-            full_file_path = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a file", filetypes=[("CSV (Comma separated file)", "*.csv")]) # select a video file from the hard drive
-            if ( full_file_path != ''):
-              
-                 processing_dataset_location_text_box.config(state=NORMAL)
-                 processing_dataset_location_text_box.delete(0,END)
-                 processing_dataset_location_text_box.insert(0,full_file_path)
-                 processing_dataset_location_text_box.config(state=DISABLED)
-                 processing_type_text_box.config(state=DISABLED)
-                 
-                 if (field_validation()): # Adding combobox drop down list
+        if (field_validation()): # Adding combobox drop down list
+        
+            loaded_dataset_path = processing_dataset_location_text_box.get()
+            column_selection_label.place(x = 35, y = 250)
+            
+            column_url_label_one.place(x = 35, y = 300)
+            column_url_label_two.place(x = 35,y = 350)
                        
-                        loaded_dataset_name = processing_type_text_box.get()
-                        loaded_dataset_path = processing_dataset_location_text_box.get()
+            column_one_option_menu = ttk.Combobox(rightframe,  values = (read_csv_file(loaded_dataset_path)),state="readonly", width = 27) 
+            column_two_option_menu = ttk.Combobox(rightframe,  values = (read_csv_file(loaded_dataset_path)), state="readonly",width = 27) 
                         
-                        column_selection_label.place(x = 35, y = 250)
+            column_one_option_menu.place(x = 185, y = 300)
                         
-                        column_url_label_one.place(x = 35, y = 300)
-                        column_url_label_two.place(x = 35,y = 350)
+            column_two_option_menu.place(x = 185, y = 350)
                        
-                        column_one_option_menu = ttk.Combobox(rightframe,  values = (read_csv_file(loaded_dataset_path)),state="readonly", width = 27) 
-                        column_two_option_menu = ttk.Combobox(rightframe,  values = (read_csv_file(loaded_dataset_path)), state="readonly",width = 27) 
-                        
-                        column_one_option_menu.place(x = 185, y = 300)
-                        
-                        column_two_option_menu.place(x = 185, y = 350)
-                       
-                      
-                   
-                        sort_step_button = Button(rightframe, text="Sort Dataset", width = 15,command = lambda:start_reformatting(self,loaded_dataset_path,column_one_option_menu.get(), column_two_option_menu.get()) )
-    
-                        sort_step_button.place(x = 610, y = 500)
-                        sort_step_button.pack_forget()
+            sort_step_button = Button(rightframe, text="Sort Dataset", width = 15,command = lambda:start_reformatting(self,loaded_dataset_path,column_one_option_menu.get(), column_two_option_menu.get()) )
+            sort_step_button.place(x = 610, y = 500)
+            sort_step_button.pack_forget()
                        
                        
                         
