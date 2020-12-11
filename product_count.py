@@ -20,6 +20,8 @@ from tkinter import messagebox as mbox
 from tkinter.filedialog import askopenfilename
 import threading
 import requests 
+import tkinter.scrolledtext as tkscrolled
+import gc
 
 lock = threading.Lock()
 
@@ -120,23 +122,40 @@ def list_to_string(list_column):
      return data
                         
 def save_df_to_selected_path(user_selected_path):
-   
-    sorted_df = pd.DataFrame(list(pre_sort_data_dict.items()),columns = ['store','hostandcountlist']) 
-   
-    sorted_df['hostandcountlist'] = sorted_df['hostandcountlist'].apply(list_to_string)
-    sorted_df = sorted_df.join(sorted_df['hostandcountlist'].str.split(',', expand=True).add_prefix('Response '))
-    sorted_df = sorted_df.drop('hostandcountlist', 1)
-    sorted_df.rename(columns={'Response 0':  'host'}, inplace=True)
-    sorted_df.rename(columns={'Response 1':  'count'}, inplace=True)
-    sorted_df_final_df = sorted_df.sort_values('count',ascending=False)
-    sorted_df_final_df.to_csv(user_selected_path +"/"+ "valid-sorted-urls-"+ generated_time() +".csv",index=False, line_terminator='\n', encoding ="utf-8-sig")
+ 
+    if(len(pre_sort_data_dict) > 0):
+        time_generated =  generated_time()
+        sorted_df = pd.DataFrame(list(pre_sort_data_dict.items()),columns = ['sorted store','hostandcountlist']) 
+        sorted_df['hostandcountlist'] = sorted_df['hostandcountlist'].apply(list_to_string)
+        sorted_df = sorted_df.join(sorted_df['hostandcountlist'].str.split(',', expand=True).add_prefix('Response '))
+        sorted_df = sorted_df.drop('hostandcountlist', 1)
+        sorted_df.rename(columns={'Response 0':  'hostname'}, inplace=True)
+        sorted_df.rename(columns={'Response 1':  'count'}, inplace=True)
+        sorted_df['count'].astype(str).astype(int)
+        sorted_df.sort_values(by=['count'],inplace=True)
+        
+        sorted_df.to_csv(user_selected_path +"/"+ "valid-sorted-urls-"+ time_generated +".csv",index=False, line_terminator='\n', encoding ="utf-8-sig")
+        saved_csv = user_selected_path +"/"+ "valid-sorted-urls-"+ time_generated +".csv"
     
-    error_df = pd.DataFrame(list(error_soriting_data_dict.items()),columns = ['store','hostanderrorcode']) 
-    if(len(error_df) > 0):
+        while not os.path.exists(saved_csv):
+            time.sleep(1)
+        df = pd.read_csv(user_selected_path+"/"+ "valid-sorted-urls-"+ time_generated +".csv",index_col=False)
+        df.sort_values(by=['count'], inplace=True)
+        df.to_csv(user_selected_path+"/"+ "valid-sorted-urls-"+ time_generated +".csv",index=False, line_terminator='\n', encoding ="utf-8-sig")
+        
+       
+        
+    else:
+        sorted_df.to_csv(user_selected_path +"/"+ "valid-sorted-urls-"+ generated_time() +".csv",index=False, line_terminator='\n', encoding ="utf-8-sig")
+        del sorted_df
+    
+   
+    if(len(error_soriting_data_dict) > 0):
+        error_df = pd.DataFrame(list(error_soriting_data_dict.items()),columns = ['store','hostanderrorcode']) 
         error_df['hostanderrorcode'] = sorted_df['hostanderrorcode'].apply(list_to_string)
         error_df = error_df.join(error_df['hostanderrorcode'].str.split(',', expand=True).add_prefix('Response '))
         error_df = error_df.drop('hostanderrorcode', 1)
-        error_df.rename(columns={'Response 0':  'host'}, inplace=True)
+        error_df.rename(columns={'Response 0':  'hostname'}, inplace=True)
         error_df.rename(columns={'Response 1':  'error code'}, inplace=True)
     
         error_df.to_csv(user_selected_path +"/"+ "error-sorted-urls-"+ generated_time() +".csv",index=False, line_terminator='\n', encoding ="utf-8-sig")
@@ -149,10 +168,15 @@ def save_sorted_data():
     if ( save_data_set_path != ''):
         save_thread = threading.Thread(target=save_df_to_selected_path, args=(save_data_set_path,), daemon=True)  
         save_thread.start()
+        save_thread.join()
         confirmation = "Sorted data csv file has been saved sucessfully"
         mbox.showinfo("Information", confirmation)
-        save_thread.join()
-
+       
+    else:
+        
+        error = "the directory was not selected "
+        mbox.showerror("Error", error)
+        
 
     
             
@@ -205,7 +229,10 @@ def products_counting_gui_update(self,loaded_dataset_path,main_urls,store_urls):
    
     
     gui_text_area = tkinter.Text(rightframe) 
-    gui_text_area.place(x=55, y=60)
+   
+    
+    
+    gui_text_area.place(x=55, y=60)   
     
     total_url_label = Label(rightframe, text= "\n"+ detected_total_urls +"\n\n\tTotal Urls \t" ,font=(standard_font_name, text_font_size,font_weight),bg =rightframe_background_color,fg = foreground_color,borderwidth=2, relief="solid")
     total_url_label.place(x=25, y=500)
@@ -231,8 +258,9 @@ def products_counting_gui_update(self,loaded_dataset_path,main_urls,store_urls):
     save_step_button = Button(rightframe, text="Download CSV", width = 15,command = lambda:save_sorted_data() )
     save_step_button.place(x = 600, y = 10)
     
-    
-
+    #global counting_progress_bar
+    #counting_progress_bar = Progressbar(rightframe,orient=HORIZONTAL,length=100,mode='determinate')
+    #
     global validation_thread
     sorting_thread = threading.Thread(target=start_pre_sorting_process, args=(host_name_list,store_name_list), daemon=True) 
     sorting_thread.start()
@@ -273,7 +301,7 @@ def check_endpoint_result(count,host_name,store_api,product_range):
                   return "more products"
         
     except Exception as e:
-        
+        text_area_statement(count,"Failed",store,"Logged")
         error_soriting_data_dict[store] = [host_name,"SORTING ERROR",str(e)]
         return False
     
@@ -286,9 +314,10 @@ def pre_sort_products(count,host_name,store_api,store_url):
    sep = '/'
    store = store.split(sep, 1)[0]
    
+   
    try:
        store_endpoint = []
-       page_numbers = [1,2,4,6,5,10,20,40,51,60,80,101,120,151,201,501,701,801,901,1001,1301,1601,1901,2101,2501,3001,32001,35001,3801,4001,4301,5001,5501,6001,6501,7001,8001,9001,10001]
+       page_numbers = [1,2,4,6,5,10,20,40,50,60,80,101,120,151,201,501,701,801,901,1001,1301,1601,1901,2101,2501,3001,3201,3501,3801,4001,4301,4500,5001,5501,6001,6501,7001,8001,9001,10001]
        text_area_statement(count+1,"Ongoing",store,"Counting")
        for page in page_numbers:
            store_endpoint = (store_api+str(page))
@@ -297,6 +326,7 @@ def pre_sort_products(count,host_name,store_api,store_url):
                pre_sort_data_dict[store_url] = [host_name,str(250*page)]
 
                text_area_statement(count+1,"Found",store,str(250*page))
+              
                break
            
               

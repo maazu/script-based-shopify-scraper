@@ -31,6 +31,26 @@ font_weight ="bold"
 button_background_color = "#108043"
 text_font_size = 12
 
+def quit_program(self):
+        self.root.destroy()
+        exit(0)       
+def quit_page(self):
+            self.root.update() 
+            rightframe = Frame(self.root,bg = rightframe_background_color)  
+            rightframe.pack(side = RIGHT)  
+            rightframe.place(height=800, width=800, x=200, y=0)
+            quit_heading = Label(rightframe, text="Quit", font=(standard_font_name, text_font_size,font_weight))
+            quit_heading.place(x=35, y=20)
+    
+            quit_note = "Pressing Yes button will shut the entirely."
+            quit_heading = Label(rightframe, text=quit_note, font=(standard_font_name, text_font_size,font_weight))
+            quit_heading.place(x=35, y=50)
+            quit_button = Button(rightframe, text="Yes", fg="black", width = 20,command=lambda:quit_program(self))  
+            quit_button.place(x=35, y=100)
+
+
+
+        
 class GUI:
     def __init__(self):
         self.root = tkinter.Tk()
@@ -77,40 +97,20 @@ class GUI:
         download_button.place(x=25, y=350)
         
         
-        quit_button =  Button(leftframe, text="Quit", width = 20,command=self.quit_page)  
+        quit_button =  Button(leftframe, text="Quit", width = 20,command=lambda:quit_page(self))  
         quit_button.place(x=25, y=400)
 
 
 
-        
-    def quit_page(self):
-        self.root.update() 
-        rightframe = Frame(self.root,bg = rightframe_background_color)  
-        rightframe.pack(side = RIGHT)  
-        rightframe.place(height=800, width=800, x=200, y=0)
-        quit_heading = Label(rightframe, text="Quit", font=(standard_font_name, text_font_size,font_weight))
-        quit_heading.place(x=35, y=20)
-
-        quit_note = "Pressing Yes button will shut the entirely."
-        quit_heading = Label(rightframe, text=quit_note, font=(standard_font_name, text_font_size,font_weight))
-        quit_heading.place(x=35, y=50)
-        quit_button = Button(rightframe, text="Yes", fg="black", width = 20,command=lambda:quit_program())  
-        quit_button.place(x=35, y=100)
-
-
+ 
     
     def start(self):
         self.root.mainloop()
 
 
-
-
-def quit_program(self):
-    self.root.destory()
-    print("Closing program")
-    exit(0) 
     
-    
+
+        
     
          
 if __name__ == "__main__":  

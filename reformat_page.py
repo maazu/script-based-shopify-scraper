@@ -27,7 +27,7 @@ text_font_size = 12
 
 
 def read_csv_file(csv_file_path):
-    df = pd.read_csv(dataset_path).drop_duplicates(keep='first').reset_index()
+    df = pd.read_csv(csv_file_path ,index_col = False)
     df_columns =tuple(df.columns)
     return df_columns
 
@@ -49,14 +49,8 @@ def reformat_dataset(self,page_name):
     
 
 
-    processing_type_label_name = Label(rightframe, text="Name", font=(standard_font_name, text_font_size,font_weight),bg =rightframe_background_color,fg = foreground_color)
-    processing_type_label_name.place(x=35, y = 100)
+   
     
-    
-    global processing_type_text_box #name textbox
-    processing_type_text_box = Entry(rightframe)
-    processing_type_text_box.place(x = 135, y = 100,width = 590)  
-  
     
    
     processing_dataset_location_label = Label(rightframe, text="Path", font=(standard_font_name, text_font_size,font_weight),bg =rightframe_background_color,fg = foreground_color)
@@ -88,22 +82,16 @@ def reformat_dataset(self,page_name):
     
    
 def field_validation():
-    if(processing_type_text_box.get() == ''):
-        mbox.showerror("Missing Dataset Name","Dataset Name Missing")
-        return False
-    elif(processing_dataset_location_text_box.get() == ''):
+    if(processing_dataset_location_text_box.get() == ''):
         mbox.showerror("Missing File Path","Dataset file path is missing")
         return False
-    return True
+    else:
+        return True
 
 
 
 def open_dialog_box_csv(self):
        
-        if(processing_type_text_box.get() == ''):
-             mbox.showerror("Missing Dataset Name","Dataset Name Missing")
-        
-        else:   
             full_file_path = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a file", filetypes=[("CSV (Comma separated file)", "*.csv")]) # select a video file from the hard drive
             if ( full_file_path != ''):
               
@@ -111,13 +99,13 @@ def open_dialog_box_csv(self):
                  processing_dataset_location_text_box.delete(0,END)
                  processing_dataset_location_text_box.insert(0,full_file_path)
                  processing_dataset_location_text_box.config(state=DISABLED)
-                 processing_type_text_box.config(state=DISABLED)
+                 
                  
                  if (field_validation()): # Adding combobox drop down list
                        
-                        loaded_dataset_name = processing_type_text_box.get()
+                      
                         loaded_dataset_path = processing_dataset_location_text_box.get()
-                        
+                        print(loaded_dataset_path)
                         column_selection_label.place(x = 35, y = 250)
                         
                         column_url_label_one.place(x = 35, y = 300)

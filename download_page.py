@@ -50,17 +50,6 @@ def download_csv_from_dataset(self,page_name):
     page_note = Label(rightframe, text = page_note, font = (standard_font_name, text_font_size,font_weight),bg =rightframe_background_color,fg = foreground_color)
     page_note.place(x=35, y=60)
     
-
-
-    processing_type_label_name = Label(rightframe, text="Name", font=(standard_font_name, text_font_size,font_weight),bg =rightframe_background_color,fg = foreground_color)
-    processing_type_label_name.place(x=35, y = 100)
-    
-    
-    global processing_type_text_box #name textbox
-    processing_type_text_box = Entry(rightframe)
-    processing_type_text_box.place(x = 135, y = 100,width = 590)  
-  
-    
    
     processing_dataset_location_label = Label(rightframe, text="Path", font=(standard_font_name, text_font_size,font_weight),bg =rightframe_background_color,fg = foreground_color)
     processing_dataset_location_label.place(x=35, y = 150)
@@ -96,13 +85,11 @@ def download_csv_from_dataset(self,page_name):
     
    
 def field_validation():
-    if(processing_type_text_box.get() == ''):
-        mbox.showerror("Missing Dataset Name","Dataset Name Missing")
-        return False
-    elif(processing_dataset_location_text_box.get() == ''):
+    if(processing_dataset_location_text_box.get() == ''):
         mbox.showerror("Missing File Path","Dataset file path is missing")
         return False
-    return True
+    else:
+        return True
 
 
 def get_download_directory(self,loaded_dataset_path,column_one_option_menu, column_two_option_menu):
@@ -120,11 +107,7 @@ def get_download_directory(self,loaded_dataset_path,column_one_option_menu, colu
                        
 
 def open_dialog_box_csv(self):
-       
-        if(processing_type_text_box.get() == ''):
-             mbox.showerror("Missing Dataset Name","Dataset Name Missing")
-        
-        else:   
+          
             full_file_path = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a file", filetypes=[("CSV (Comma separated file)", "*.csv")]) # select a video file from the hard drive
             if ( full_file_path != ''):
                
@@ -132,12 +115,11 @@ def open_dialog_box_csv(self):
                  processing_dataset_location_text_box.delete(0,END)
                  processing_dataset_location_text_box.insert(0,full_file_path)
                  processing_dataset_location_text_box.config(state=DISABLED)
-                 processing_type_text_box.config(state=DISABLED)
+                 
                  
                  if (field_validation()): # Adding combobox drop down list
                        
-                        
-                        loaded_dataset_name = processing_type_text_box.get()
+                     
                         loaded_dataset_path = processing_dataset_location_text_box.get()
                         
                         column_selection_label.place(x = 35, y = 250)
@@ -202,7 +184,7 @@ def start_validation(self,loaded_dataset_path,main_urls,store_urls):
    
     if (field_validation()):
         
-        validation_process_gui_update(self,loaded_dataset_path,main_urls,store_urls)
+        products_downloading_gui_update(self,loaded_dataset_path,main_urls,store_urls)
         
         #save_step_button = Button(rightframe, text="Finish & Save CSV",  bg= button_background_color,fg="WHITE", width = 15,command = lambda:save_reformatted_data(df) )
         #save_step_button.place(x = 610, y = 500)
