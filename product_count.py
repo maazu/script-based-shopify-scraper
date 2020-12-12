@@ -152,7 +152,7 @@ def save_df_to_selected_path(user_selected_path):
    
     if(len(error_soriting_data_dict) > 0):
         error_df = pd.DataFrame(list(error_soriting_data_dict.items()),columns = ['store','hostanderrorcode']) 
-        error_df['hostanderrorcode'] = sorted_df['hostanderrorcode'].apply(list_to_string)
+        error_df['hostanderrorcode'] = error_df['hostanderrorcode'].apply(list_to_string)
         error_df = error_df.join(error_df['hostanderrorcode'].str.split(',', expand=True).add_prefix('Response '))
         error_df = error_df.drop('hostanderrorcode', 1)
         error_df.rename(columns={'Response 0':  'hostname'}, inplace=True)
@@ -276,7 +276,7 @@ def text_area_statement(count,status,store,product_range):
         if(total_urls == detected_total_urls):
                 Stop()
                 program_status['text'] = "\tStatus: Finished \t\t"
-                #process_sorting_thread.exit()
+               
             
     except Exception as e:
         

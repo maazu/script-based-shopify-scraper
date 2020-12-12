@@ -186,11 +186,10 @@ def validation_process_gui_update(self,loaded_dataset_path,main_urls,store_urls)
     
 
     global validation_thread
+    global stop_validation_thread
     validation_thread = threading.Thread(target=start_validation_process, args=(loaded_dataset_path,main_urls,store_urls,), daemon=True) 
     active_valid_thread.append(validation_thread)
     validation_thread.start()
-    
-    
     
     
     
@@ -239,7 +238,10 @@ def save_validated_data():
   
 async def text_area_statement(validity_status,host,store,count,contentType):
     
-    store_url = store[8:-31]
+
+    store_url =  store[8:]
+    sep = '/'
+    store_url = store_url.split(sep, 1)[0]
     total =  str(len(valid_url) + len(invalid_url) )
     gui_text_area_updates.append([validity_status,store_url,total])
     #print("{}\t\t {}\t\t {}\t\t {}\t\t {}\t\t  ".format(validity_status ,str(len(valid_url)),str(len(invalid_url)),total,store_url)) 
@@ -251,19 +253,22 @@ async def text_area_statement(validity_status,host,store,count,contentType):
     if (detected_total_urls == total ):
         program_status.configure(text="\tStatus: Finished \t\t") 
         Stop()
-        validation_thread.exit()
+        
+       
  
     await asyncio.sleep(0.5)
 
 
 
 async def update_url_validity_status(validity_status,host,store,count,contentType):
-    
+    store_url =  store[8:]
+    sep = '/'
+    store_url = store_url.split(sep, 1)[0]
     if(validity_status == "valid"):
-        store_url = store[8:-31]
+        
         valid_url[store_url] = host
     else:
-        store_url = store[8:-31]
+       
         invalid_url[store_url] = host
     
     await text_area_statement(validity_status,host,store,count,contentType)
@@ -290,15 +295,15 @@ async def fetch(host: str,store: str,count: int, session: ClientSession, **kwarg
              
                 if('products' in json_data.keys()):
                     
-                    await update_url_validity_status("valid",host,store,count,contentType)   
+                    await update_url_validity_status("valid",host,str(response.url),count,contentType)   
                     
                 else:
                     
-                     await update_url_validity_status("invalid",host,store,count,contentType) 
+                     await update_url_validity_status("invalid",host,str(response.url),count,contentType)   
                      
             else:
                
-                await update_url_validity_status("invalid",host,store,count,contentType)
+                 await update_url_validity_status("invalid",host,str(response.url),count,contentType)   
                 
             
     except Exception as e:
